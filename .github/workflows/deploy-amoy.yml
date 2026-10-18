@@ -25,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  statuses: write
 
 env:
   AMOY_RPC_URL: https://polygon-amoy-bor-rpc.publicnode.com
@@ -32,7 +33,7 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,6 +50,7 @@ jobs:
             echo "::add-mask::$KEY"
             ADDR=$(node -e "console.log(new (require('ethers').Wallet)(process.argv[1]).address)" "$KEY")
             echo "::notice title=Envia POL de prueba a esta direccion::DEPLOYER=$ADDR"
+            GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }}/statuses/${{ github.sha }} -f state=pending -f context=grano-deployer -f description="$ADDR" > /dev/null
             echo "### Envía al menos 0,1 POL de prueba (red Polygon Amoy) a:" >> "$GITHUB_STEP_SUMMARY"
             echo "\`$ADDR\`" >> "$GITHUB_STEP_SUMMARY"
           else
@@ -57,6 +59,8 @@ jobs:
           echo "PRIVATE_KEY=$KEY" >> "$GITHUB_ENV"
 
       - name: Esperar POL de prueba
+        env:
+          WAIT_MINUTES: "60"
         run: npx hardhat run scripts/wait-funds.js --network amoy
 
       - name: Desplegar
