@@ -366,6 +366,7 @@ footer p{max-width:90ch}
           <div style="display:grid;gap:10px">
             <button class="btn" type="button" id="connect-btn">Conectar wallet</button>
             <button class="btn" type="button" id="buy-btn" hidden>Comprar</button>
+            <button class="btn ghost" type="button" id="faucet-btn" hidden>Conseguir 10.000 USDC de prueba</button>
             <p class="msg" id="msg" role="status" aria-live="polite"></p>
           </div>
         </div>
@@ -456,6 +457,7 @@ const CONFIG = {
   saleAddress: "",
   usdcAddress: "",
   usdcDecimals: 6,
+  mockUSDC: true,                 // true en testnet con el USDC de pruebas (muestra el botón para conseguirlo)
   priceUSDC: 0.05,
   minUSDC: 50,
   maxUSDC: 10000,
@@ -552,7 +554,8 @@ const SALE_ABI = [
 const ERC20_ABI = [
   "function allowance(address,address) view returns (uint256)",
   "function approve(address,uint256) returns (bool)",
-  "function balanceOf(address) view returns (uint256)"
+  "function balanceOf(address) view returns (uint256)",
+  "function mint(address,uint256)" // solo existe en el USDC de pruebas
 ];
 let ethersLib = null, signer = null, account = null;
 
@@ -604,10 +607,23 @@ $("connect-btn").addEventListener("click", async () => {
     }
     $("connect-btn").hidden = true;
     $("buy-btn").hidden = false;
+    if (CONFIG.chainId !== 137 && CONFIG.mockUSDC) $("faucet-btn").hidden = false;
     await refreshSold();
   } catch (e) {
     setMsg(e?.shortMessage || e?.message || "No se pudo conectar la wallet.", "err");
   }
+});
+
+$("faucet-btn").addEventListener("click", async () => {
+  const btn = $("faucet-btn"); btn.disabled = true;
+  try {
+    const usdc = new ethersLib.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
+    setMsg("Confirma en tu wallet para recibir USDC de prueba…", "");
+    await (await usdc.mint(account, ethersLib.parseUnits("10000", CONFIG.usdcDecimals))).wait();
+    setMsg("Has recibido 10.000 USDC de prueba. Ya puedes comprar.", "ok");
+  } catch (e) {
+    setMsg(e?.shortMessage || e?.message || "No se pudo conseguir USDC de prueba.", "err");
+  } finally { btn.disabled = false; }
 });
 
 $("buy-btn").addEventListener("click", async () => {

@@ -12,7 +12,10 @@
  *   TEAM_ADDRESS, ADVISORS_ADDRESS, PRODUCERS_ADDRESS, ECOSYSTEM_ADDRESS   beneficiarios de vesting
  *   SALE_START           timestamp unix de inicio (por defecto: dentro de 10 minutos)
  *   SALE_DAYS            duración en días (por defecto: 30)
+ *   ALLOWLIST            wallets autorizadas a comprar, separadas por comas (pruebas)
  */
+const fs = require("fs");
+const path = require("path");
 const { ethers, network } = require("hardhat");
 
 const G = (n) => ethers.parseUnits(String(n), 18);
@@ -88,9 +91,26 @@ async function main() {
   // Liquidez (10M): se queda en la tesorería para crear el pool cuando se liste
   await (await token.transfer(treasury, G(10_000_000))).wait();
 
+  // Compradores de prueba autorizados (lista KYC), separados por comas
+  const allow = (env.ALLOWLIST || "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (allow.length) {
+    for (const a of allow) if (!ethers.isAddress(a)) throw new Error(`Dirección no válida en ALLOWLIST: ${a}`);
+    await (await sale.setAllowlist(allow, true)).wait();
+    console.log(`Autorizadas para comprar: ${allow.join(", ")}`);
+  }
+
   const left = await token.balanceOf(deployer.address);
   console.log("Saldo restante del desplegador:", ethers.formatUnits(left, 18));
-  console.log("\nCopia esto en la configuración de la web:\n", JSON.stringify(deployed, null, 2));
+
+  deployed.network = network.name;
+  deployed.chainId = Number(network.config.chainId || 31337);
+  deployed.saleStart = new Date(saleCfg.startTime * 1000).toISOString();
+  deployed.saleEnd = new Date(saleCfg.endTime * 1000).toISOString();
+  deployed.mockUSDC = !env.USDC_ADDRESS;
+  const dir = path.join(__dirname, "..", "deployments");
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, `${network.name}.json`), JSON.stringify(deployed, null, 2));
+  console.log(`\nDirecciones guardadas en deployments/${network.name}.json:\n`, JSON.stringify(deployed, null, 2));
 }
 
 main().catch((e) => {
