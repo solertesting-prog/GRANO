@@ -26,6 +26,9 @@ on:
 permissions:
   contents: read
 
+env:
+  AMOY_RPC_URL: https://polygon-amoy-bor-rpc.publicnode.com
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
