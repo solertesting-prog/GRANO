@@ -1,12 +1,19 @@
 name: Desplegar en Amoy (testnet)
 
 # Se lanza a mano desde la pestaña Actions o con la API.
-# Requiere el secreto del repositorio AMOY_PRIVATE_KEY: la clave de una wallet SOLO de pruebas,
-# con POL de la faucet de Polygon Amoy. Nunca uses aquí la clave de una wallet con fondos reales.
+#
+# Dos modos:
+#  - Con el secreto AMOY_PRIVATE_KEY: despliega con esa wallet.
+#  - Sin él (modo sencillo): crea una wallet temporal SOLO para esta ejecución, muestra su
+#    dirección y espera hasta 30 minutos a que reciba POL de prueba. Todo lo desplegado
+#    (tesorería, tokens, administración de la venta) queda a nombre de la wallet "owner".
 
 on:
   workflow_dispatch:
     inputs:
+      owner:
+        description: "Tu wallet: recibe la tesorería y la administración de la venta"
+        required: true
       allowlist:
         description: "Wallets autorizadas a comprar (separadas por comas)"
         required: false
@@ -22,21 +29,48 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm install
+
+      - name: Preparar wallet desplegadora
+        env:
+          KEY: ${{ secrets.AMOY_PRIVATE_KEY }}
+        run: |
+          if [ -z "$KEY" ]; then
+            KEY=$(node -e "console.log(require('ethers').Wallet.createRandom().privateKey)")
+            echo "::add-mask::$KEY"
+            ADDR=$(node -e "console.log(new (require('ethers').Wallet)(process.argv[1]).address)" "$KEY")
+            echo "::notice title=Envia POL de prueba a esta direccion::DEPLOYER=$ADDR"
+            echo "### Envía al menos 0,1 POL de prueba (red Polygon Amoy) a:" >> "$GITHUB_STEP_SUMMARY"
+            echo "\`$ADDR\`" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::add-mask::$KEY"
+          fi
+          echo "PRIVATE_KEY=$KEY" >> "$GITHUB_ENV"
+
+      - name: Esperar POL de prueba
+        run: npx hardhat run scripts/wait-funds.js --network amoy
+
       - name: Desplegar
         env:
-          PRIVATE_KEY: ${{ secrets.AMOY_PRIVATE_KEY }}
+          TREASURY_ADDRESS: ${{ inputs.owner }}
+          TEAM_ADDRESS: ${{ inputs.owner }}
+          ADVISORS_ADDRESS: ${{ inputs.owner }}
+          PRODUCERS_ADDRESS: ${{ inputs.owner }}
+          ECOSYSTEM_ADDRESS: ${{ inputs.owner }}
+          NEW_OWNER: ${{ inputs.owner }}
           ALLOWLIST: ${{ inputs.allowlist }}
           SALE_DAYS: ${{ inputs.sale_days }}
         run: |
-          if [ -z "$PRIVATE_KEY" ]; then echo "::error::Falta el secreto AMOY_PRIVATE_KEY"; exit 1; fi
           export SALE_START=$(( $(date +%s) + 120 ))
           npx hardhat run scripts/deploy.js --network amoy
+          echo "::notice title=GRANO desplegado::$(tr -d '\n' < deployments/amoy.json)"
+
       - name: Resumen
         run: |
           {
@@ -44,7 +78,6 @@ jobs:
             echo '```json'
             cat deployments/amoy.json
             echo '```'
-            echo "Pega estas direcciones en CONFIG, al principio de web/index.html."
           } >> "$GITHUB_STEP_SUMMARY"
       - uses: actions/upload-artifact@v4
         with:

@@ -13,6 +13,7 @@
  *   SALE_START           timestamp unix de inicio (por defecto: dentro de 10 minutos)
  *   SALE_DAYS            duración en días (por defecto: 30)
  *   ALLOWLIST            wallets autorizadas a comprar, separadas por comas (pruebas)
+ *   NEW_OWNER            wallet que pasará a administrar la venta (traspaso en 2 pasos)
  */
 const fs = require("fs");
 const path = require("path");
@@ -97,6 +98,15 @@ async function main() {
     for (const a of allow) if (!ethers.isAddress(a)) throw new Error(`Dirección no válida en ALLOWLIST: ${a}`);
     await (await sale.setAllowlist(allow, true)).wait();
     console.log(`Autorizadas para comprar: ${allow.join(", ")}`);
+  }
+
+  // Traspaso de la administración de la venta (2 pasos: el nuevo dueño debe aceptar
+  // llamando a acceptOwnership() desde su wallet).
+  if (env.NEW_OWNER && env.NEW_OWNER.toLowerCase() !== deployer.address.toLowerCase()) {
+    if (!ethers.isAddress(env.NEW_OWNER)) throw new Error("NEW_OWNER no es una dirección válida");
+    await (await sale.transferOwnership(env.NEW_OWNER)).wait();
+    console.log(`Administración de la venta propuesta a ${env.NEW_OWNER} (pendiente de aceptar)`);
+    deployed.pendingOwner = env.NEW_OWNER;
   }
 
   const left = await token.balanceOf(deployer.address);
