@@ -124,6 +124,7 @@ async function main() {
 }
 
 main().catch((e) => {
+  console.log(`::error title=Despliegue::${(e.shortMessage || e.message || String(e)).split("\n")[0]}`);
   console.error(e);
   process.exitCode = 1;
 });
