@@ -1,0 +1,52 @@
+name: Desplegar en Amoy (testnet)
+
+# Se lanza a mano desde la pestaña Actions o con la API.
+# Requiere el secreto del repositorio AMOY_PRIVATE_KEY: la clave de una wallet SOLO de pruebas,
+# con POL de la faucet de Polygon Amoy. Nunca uses aquí la clave de una wallet con fondos reales.
+
+on:
+  workflow_dispatch:
+    inputs:
+      allowlist:
+        description: "Wallets autorizadas a comprar (separadas por comas)"
+        required: false
+        default: ""
+      sale_days:
+        description: "Duración de la venta en días"
+        required: false
+        default: "30"
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Desplegar
+        env:
+          PRIVATE_KEY: ${{ secrets.AMOY_PRIVATE_KEY }}
+          ALLOWLIST: ${{ inputs.allowlist }}
+          SALE_DAYS: ${{ inputs.sale_days }}
+        run: |
+          if [ -z "$PRIVATE_KEY" ]; then echo "::error::Falta el secreto AMOY_PRIVATE_KEY"; exit 1; fi
+          export SALE_START=$(( $(date +%s) + 120 ))
+          npx hardhat run scripts/deploy.js --network amoy
+      - name: Resumen
+        run: |
+          {
+            echo "## GRANO desplegado en Polygon Amoy"
+            echo '```json'
+            cat deployments/amoy.json
+            echo '```'
+            echo "Pega estas direcciones en CONFIG, al principio de web/index.html."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deployments-amoy
+          path: deployments/amoy.json

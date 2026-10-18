@@ -1,0 +1,654 @@
+<title>GRANO</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="GRANO, el token de utilidad del café y el cacao trazables.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@600;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: una columna editorial de 1080px; bandas a sangre (venta, cifras) con el texto dentro del margen; el "saco de exportación" como motivo: estarcido, códigos de lote, sellos. */
+:root{
+  --bg:#F1F3EE;        /* hoja de cafeto pálida */
+  --surface:#FFFFFF;
+  --ink:#17221D;
+  --muted:#56645C;
+  --line:#D5DBD3;
+  --forest:#1E4A38;    /* verde de finca */
+  --forest-ink:#F1F3EE;
+  --ochre:#B07A12;     /* mazorca de cacao madura */
+  --ochre-soft:#F4E7C8;
+  --bar:#1E4A38;
+  --ok:#2D7A4F; --warn:#9A5B00; --bad:#A33A2A;
+  --display:"Big Shoulders Stencil Display","Oswald","Arial Narrow",sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#101814; --surface:#17211C; --ink:#E5ECE6; --muted:#9AAAA1; --line:#2A3832;
+    --forest:#7FBF9C; --forest-ink:#0F1713; --ochre:#E2AE48; --ochre-soft:#3A2F17; --bar:#7FBF9C;
+    --ok:#6CC58F; --warn:#E6A84A; --bad:#EE8A78; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#101814; --surface:#17211C; --ink:#E5ECE6; --muted:#9AAAA1; --line:#2A3832;
+  --forest:#7FBF9C; --forest-ink:#0F1713; --ochre:#E2AE48; --ochre-soft:#3A2F17; --bar:#7FBF9C;
+  --ok:#6CC58F; --warn:#E6A84A; --bad:#EE8A78; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);font-weight:800;line-height:.95;letter-spacing:.01em;text-transform:uppercase;text-wrap:balance;margin:0}
+h2{font-size:clamp(2.4rem,5vw,3.6rem)}
+h3{font-size:1.55rem}
+p{margin:0}
+.eyebrow{font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.lede{font-size:1.125rem;color:var(--muted);max-width:62ch}
+section{padding-block:72px}
+.sec-head{display:grid;gap:14px;margin-bottom:36px}
+.num{font-variant-numeric:tabular-nums}
+
+/* nav */
+header.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.logo{font-family:var(--display);font-weight:800;font-size:1.7rem;letter-spacing:.04em;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo svg{width:26px;height:26px}
+.nav ul{display:flex;gap:22px;list-style:none;margin:0;padding:0;font-size:.92rem}
+.nav ul a{text-decoration:none;color:var(--muted)}
+.nav ul a:hover{color:var(--ink)}
+@media (max-width:760px){.nav ul{display:none}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:600 .95rem var(--body);padding:11px 18px;border-radius:var(--r);border:1px solid var(--forest);background:var(--forest);color:var(--forest-ink);text-decoration:none;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.55;cursor:not-allowed;filter:none}
+
+/* hero */
+.hero{padding-block:64px 56px}
+.hero .wrap{display:grid;grid-template-columns:1.15fr .85fr;gap:48px;align-items:center}
+@media (max-width:880px){.hero .wrap{grid-template-columns:1fr}}
+.hero h1{font-size:clamp(3.2rem,8.4vw,6.4rem)}
+.hero h1 em{font-style:normal;color:var(--ochre)}
+.hero .copy{display:grid;gap:22px;min-width:0}
+.hero .ctas{display:flex;flex-wrap:wrap;gap:12px}
+.facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);margin-top:8px}
+.facts div{padding:14px 12px 0 0;display:grid;gap:2px}
+.facts b{font-family:var(--mono);font-weight:500;font-size:1.05rem}
+.facts span{font-size:.8rem;color:var(--muted)}
+@media (max-width:520px){.facts{grid-template-columns:repeat(2,1fr)}}
+
+/* pasaporte de origen (pieza del hero) */
+.passport{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px;display:grid;gap:16px;position:relative;box-shadow:0 18px 40px -28px rgba(0,0,0,.45);min-width:0}
+.passport .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.passport .stamp{font-family:var(--display);font-weight:800;font-size:1.05rem;color:var(--ochre);border:2px solid var(--ochre);padding:4px 10px;border-radius:4px;transform:rotate(-4deg);letter-spacing:.06em;white-space:nowrap}
+.passport dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;font-size:.9rem}
+.passport dt{color:var(--muted)}
+.passport dd{margin:0;font-family:var(--mono);font-size:.84rem;overflow-wrap:anywhere}
+.plot{border-radius:6px;background:var(--bg);border:1px dashed var(--line);aspect-ratio:16/7;max-width:100%}
+.plot svg{width:100%;height:100%;display:block}
+.passport .foot{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:.72rem;color:var(--muted);gap:10px;flex-wrap:wrap}
+.example{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* utilidades */
+.uses{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.use{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:12px;align-content:start;grid-column:span 2;min-width:0}
+.use.wide{grid-column:span 3}
+@media (max-width:880px){.use,.use.wide{grid-column:span 3}}
+@media (max-width:600px){.use,.use.wide{grid-column:span 6}}
+.use .tags{display:flex;gap:8px;flex-wrap:wrap}
+.tag{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.now{background:var(--forest);border-color:var(--forest);color:var(--forest-ink)}
+.tag.later{background:var(--ochre-soft);border-color:transparent;color:var(--ink)}
+.use p{color:var(--muted);font-size:.95rem}
+.use .mech{font-family:var(--mono);font-size:.78rem;color:var(--ink);border-top:1px dashed var(--line);padding-top:10px}
+
+/* ciclo */
+.cycle{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.cycle div{padding:22px;display:grid;gap:8px;border-right:1px solid var(--line);min-width:0}
+.cycle div:last-child{border-right:0}
+.cycle .k{font-family:var(--mono);font-size:.72rem;color:var(--ochre);letter-spacing:.1em}
+.cycle p{font-size:.92rem;color:var(--muted)}
+@media (max-width:760px){.cycle{grid-template-columns:1fr 1fr}.cycle div:nth-child(2){border-right:0}.cycle div:nth-child(-n+2){border-bottom:1px solid var(--line)}}
+
+/* tokenomics */
+.band{background:var(--forest);color:var(--forest-ink)}
+.band .eyebrow,.band .lede{color:color-mix(in srgb,var(--forest-ink) 72%,transparent)}
+.tk{display:grid;grid-template-columns:1.1fr .9fr;gap:40px}
+@media (max-width:880px){.tk{grid-template-columns:1fr}}
+.alloc{display:grid;gap:14px;min-width:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;cursor:default}
+.row .name{font-weight:600;font-size:.95rem}
+.row .pct{font-family:var(--mono);font-size:.95rem;text-align:right}
+.row .track{grid-column:1/-1;height:12px;border-radius:2px;background:color-mix(in srgb,var(--forest-ink) 14%,transparent);overflow:hidden}
+.row .fill{height:100%;background:var(--ochre);border-radius:0 4px 4px 0}
+.row .vest{grid-column:1/-1;font-size:.8rem;color:color-mix(in srgb,var(--forest-ink) 70%,transparent)}
+.row:hover .fill{filter:brightness(1.12)}
+.keys{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:color-mix(in srgb,var(--forest-ink) 22%,transparent);border-radius:10px;overflow:hidden;align-content:start}
+.keys div{background:var(--forest);padding:18px;display:grid;gap:4px}
+.keys b{font-family:var(--mono);font-weight:500;font-size:1.3rem}
+.keys span{font-size:.82rem;color:color-mix(in srgb,var(--forest-ink) 72%,transparent)}
+.keys .note{grid-column:1/-1;font-size:.84rem;line-height:1.5}
+.tbl-toggle{margin-top:18px;font-size:.85rem}
+.tbl-toggle summary{cursor:pointer;color:color-mix(in srgb,var(--forest-ink) 80%,transparent)}
+.tbl{overflow-x:auto;margin-top:10px}
+.tbl table{border-collapse:collapse;width:100%;font-size:.85rem;min-width:520px}
+.tbl th,.tbl td{text-align:left;padding:8px 10px;border-bottom:1px solid color-mix(in srgb,var(--forest-ink) 18%,transparent)}
+.tbl td.r,.tbl th.r{text-align:right;font-family:var(--mono)}
+
+/* venta */
+.sale{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media (max-width:880px){.sale{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:26px;display:grid;gap:18px;align-content:start;min-width:0}
+.banner{font-size:.88rem;padding:10px 14px;border-radius:var(--r);background:var(--ochre-soft);color:var(--ink)}
+.progress{display:grid;gap:8px}
+.progress .bar{height:10px;border-radius:2px;background:var(--line);overflow:hidden}
+.progress .bar i{display:block;height:100%;background:var(--forest);width:0}
+.progress .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:.8rem;color:var(--muted);gap:10px;flex-wrap:wrap}
+label{font-weight:600;font-size:.9rem}
+.field{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--bg)}
+.field input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:500 1.25rem var(--mono);padding:12px 14px}
+.field input:focus{outline:none}
+.field:focus-within{border-color:var(--forest)}
+.field span{display:flex;align-items:center;padding:0 14px;font-family:var(--mono);font-size:.85rem;color:var(--muted);border-left:1px solid var(--line)}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.quick button{font:500 .82rem var(--mono);padding:6px 10px;border-radius:var(--r);border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.quick button:hover{border-color:var(--forest)}
+.out{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-top:6px;border-top:1px dashed var(--line);flex-wrap:wrap}
+.out b{font-family:var(--display);font-size:2.4rem;font-weight:800;letter-spacing:.02em}
+.msg{font-size:.88rem;min-height:1.4em}
+.msg.err{color:var(--bad)} .msg.ok{color:var(--ok)}
+.steps{display:grid;gap:14px;counter-reset:s;margin:0;padding:0;list-style:none}
+.steps li{display:grid;grid-template-columns:28px 1fr;gap:12px;font-size:.93rem;color:var(--muted)}
+.steps li::before{counter-increment:s;content:counter(s);width:28px;height:28px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;font:500 .8rem var(--mono);color:var(--ink)}
+.steps b{color:var(--ink);font-weight:600}
+.terms{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;margin:0;font-size:.9rem}
+.terms dt{color:var(--muted)} .terms dd{margin:0;font-family:var(--mono);font-size:.85rem}
+
+/* hoja de ruta */
+.road{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+@media (max-width:880px){.road{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.road{grid-template-columns:1fr}}
+.phase{border-top:3px solid var(--line);padding-top:14px;display:grid;gap:8px;align-content:start}
+.phase.cur{border-top-color:var(--ochre)}
+.phase ul{margin:0;padding-left:18px;color:var(--muted);font-size:.92rem;display:grid;gap:4px}
+
+/* riesgos y faq */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+@media (max-width:880px){.two{grid-template-columns:1fr}}
+.risks{display:grid;gap:14px}
+.risk{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.risk i{font-style:normal;font:500 .7rem var(--mono);text-transform:uppercase;letter-spacing:.06em;padding:3px 7px;border-radius:4px;border:1px solid var(--warn);color:var(--warn);white-space:nowrap}
+.risk p{font-size:.93rem;color:var(--muted)} .risk b{color:var(--ink)}
+details.q{border-bottom:1px solid var(--line);padding-block:14px}
+details.q summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details.q summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+details.q[open] summary::after{content:"–"}
+details.q p{margin-top:10px;color:var(--muted);font-size:.94rem}
+
+footer{border-top:1px solid var(--line);padding-block:36px;font-size:.82rem;color:var(--muted)}
+footer .wrap{display:grid;gap:14px}
+footer p{max-width:90ch}
+</style>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="GRANO, inicio">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="16" rx="10" ry="14" fill="var(--forest)"/><path d="M16 3c-4 6 4 20 0 26" stroke="var(--bg)" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+      GRANO
+    </a>
+    <ul>
+      <li><a href="#utilidad">Utilidad</a></li>
+      <li><a href="#tokenomics">Tokenomics</a></li>
+      <li><a href="#ruta">Hoja de ruta</a></li>
+      <li><a href="#riesgos">Riesgos</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <a class="btn" href="#venta">Comprar GRANO</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div class="copy">
+        <p class="eyebrow">Token de utilidad · Polygon</p>
+        <h1>Del cafetal a tu taza, <em>con prueba</em> en cada grano</h1>
+        <p class="lede">GRANO es el token del ecosistema de café y cacao trazables. Con él se pagan los pasaportes de origen que exige la normativa europea, se reservan cosechas de parcelas concretas y se compra producto con descuento. Cada GRANO canjeado se quema.</p>
+        <div class="ctas">
+          <a class="btn" href="#venta">Participar en la venta</a>
+          <a class="btn ghost" href="#tokenomics">Ver tokenomics</a>
+        </div>
+        <div class="facts">
+          <div><b class="num">0,05 USDC</b><span>Precio fijo de venta</span></div>
+          <div><b class="num">100M</b><span>Suministro fijo</span></div>
+          <div><b class="num">15M</b><span>A la venta (15 %)</span></div>
+          <div><b>Polygon</b><span>Red</span></div>
+        </div>
+      </div>
+
+      <article class="passport" aria-label="Ejemplo de pasaporte de origen de un lote">
+        <div class="top">
+          <div>
+            <p class="example">Ejemplo · pasaporte de origen</p>
+            <h3 style="margin-top:6px">Lote GR-24-0187</h3>
+          </div>
+          <span class="stamp">EUDR ✓</span>
+        </div>
+        <div class="plot" aria-hidden="true">
+          <svg viewBox="0 0 320 140">
+            <defs><pattern id="rows" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(28)"><line x1="0" y1="0" x2="0" y2="8" stroke="var(--forest)" stroke-width="1.4" opacity=".45"/></pattern></defs>
+            <path d="M58 32 L176 18 L262 44 L248 112 L120 124 L44 92 Z" fill="url(#rows)" stroke="var(--forest)" stroke-width="2"/>
+            <g fill="var(--ochre)"><circle cx="58" cy="32" r="4"/><circle cx="176" cy="18" r="4"/><circle cx="262" cy="44" r="4"/><circle cx="248" cy="112" r="4"/><circle cx="120" cy="124" r="4"/><circle cx="44" cy="92" r="4"/></g>
+            <text x="270" y="130" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--muted)">2,4 ha</text>
+          </svg>
+        </div>
+        <dl>
+          <dt>Producto</dt><dd>Cacao fino de aroma, fermentado 6 días</dd>
+          <dt>Parcela</dt><dd>Polígono de 6 vértices · WGS84</dd>
+          <dt>Cosecha</dt><dd>Temporada principal 2026</dd>
+          <dt>Deforestación</dt><dd>Sin pérdida de cubierta desde 31/12/2020</dd>
+          <dt>Peso</dt><dd class="num">1.380 kg · 23 sacos</dd>
+        </dl>
+        <div class="foot"><span>Registro on-chain · tx 0x8f3a…c21e</span><span>Pagado con 400 GRANO</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="utilidad">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Para qué sirve</p>
+        <h2>Cinco usos reales, una oferta fija</h2>
+        <p class="lede">El valor de GRANO depende de cuánta gente lo necesita para algo concreto. Por eso cada uso crea demanda del token, y los usos de consumo lo retiran de circulación.</p>
+      </div>
+      <div class="uses">
+        <article class="use wide">
+          <div class="tags"><span class="tag now">Lanzamiento</span><span class="tag">Empresas</span></div>
+          <h3>Pasaporte de origen</h3>
+          <p>Las marcas que importan café o cacao a la UE deben demostrar dónde se cultivó y que no hubo deforestación. Pagan en GRANO un pasaporte digital por lote, con geolocalización de la parcela, verificable en la blockchain y mediante un QR en el envase.</p>
+          <p class="mech">Demanda recurrente en cada importación · 50 % de los GRANO pagados se quema</p>
+        </article>
+        <article class="use wide">
+          <div class="tags"><span class="tag now">Lanzamiento</span><span class="tag">Consumidores</span></div>
+          <h3>Adopta una parcela</h3>
+          <p>Reservas con GRANO la cosecha de una parcela concreta. Sigues su evolución con fotos e imágenes de satélite y recibes en casa el café o el cacao de esa parcela. El productor cobra por adelantado.</p>
+          <p class="mech">GRANO bloqueados durante la temporada · se queman al entregar la cosecha</p>
+        </article>
+        <article class="use">
+          <div class="tags"><span class="tag now">Lanzamiento</span><span class="tag">Todos</span></div>
+          <h3>Tienda con quema</h3>
+          <p>Pagas café, cacao y chocolate de origen con un 10 % de descuento si usas GRANO. Los tokens canjeados se destruyen.</p>
+          <p class="mech">La oferta baja con el consumo real</p>
+        </article>
+        <article class="use">
+          <div class="tags"><span class="tag later">Fase 2</span><span class="tag">Holders</span></div>
+          <h3>Subastas de microlotes</h3>
+          <p>Mantener GRANO da acceso anticipado a subastas de cafés y cacaos de alta puntuación y ediciones limitadas, que se pagan en GRANO.</p>
+          <p class="mech">Niveles: 5.000 y 25.000 GRANO mantenidos</p>
+        </article>
+        <article class="use">
+          <div class="tags"><span class="tag later">Fase 2</span><span class="tag">Comunidad</span></div>
+          <h3>Fondo de impacto</h3>
+          <p>Los holders votan qué cooperativas reciben anticipos de cosecha financiados por la tesorería, y siguen públicamente el uso de cada anticipo.</p>
+          <p class="mech">Una votación por temporada</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Cómo circula</p>
+        <h2>El ciclo del token</h2>
+      </div>
+      <div class="cycle">
+        <div><span class="k">EMISIÓN</span><h3>Una sola vez</h3><p>Se crean 100 millones de GRANO en el despliegue. El contrato no permite crear más.</p></div>
+        <div><span class="k">ENTRADA</span><h3>Compra</h3><p>Empresas y consumidores adquieren GRANO en la venta y, más adelante, en el mercado.</p></div>
+        <div><span class="k">USO</span><h3>Gasto</h3><p>Pasaportes de origen, reservas de parcela, tienda y subastas.</p></div>
+        <div><span class="k">SALIDA</span><h3>Quema</h3><p>Los tokens canjeados por producto o servicio se destruyen y la oferta total baja.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="tokenomics" class="band">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Tokenomics</p>
+        <h2>100.000.000 GRANO, repartidos así</h2>
+        <p class="lede">Todo lo que no se vende en la venta pública se libera poco a poco desde bóvedas de vesting en la blockchain. Cualquiera puede comprobar los saldos.</p>
+      </div>
+      <div class="tk">
+        <div>
+          <div class="alloc" id="alloc" role="list" aria-label="Reparto del suministro"></div>
+          <details class="tbl-toggle">
+            <summary>Ver como tabla</summary>
+            <div class="tbl"><table id="alloc-table"><thead><tr><th>Partida</th><th class="r">%</th><th class="r">GRANO</th><th>Liberación</th></tr></thead><tbody></tbody></table></div>
+          </details>
+        </div>
+        <div class="keys">
+          <div><b class="num">5M USDC</b><span>Valoración total al precio de venta</span></div>
+          <div><b class="num">750.000 USDC</b><span>Tope de la venta pública</span></div>
+          <div><b class="num">≤ 25 %</b><span>En circulación al inicio</span></div>
+          <div><b class="num">12 meses</b><span>Bloqueo mínimo del equipo</span></div>
+          <div class="note">El dinero de la venta financia la auditoría de los contratos, la plataforma de trazabilidad, el cumplimiento legal y los primeros acuerdos con cooperativas. El desglose se publica cada trimestre.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="venta">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Venta pública</p>
+        <h2>Comprar GRANO</h2>
+        <p class="lede">Precio fijo para todos durante toda la venta, sin rondas con descuento. Pagas en USDC y recibes los GRANO al instante en tu wallet.</p>
+      </div>
+      <div class="sale">
+        <div class="panel">
+          <p class="banner" id="mode-banner" hidden></p>
+          <div class="progress">
+            <div class="lab"><span id="sold-label">Vendido: 0 GRANO</span><span>Tope: 15.000.000</span></div>
+            <div class="bar" role="progressbar" aria-label="Progreso de la venta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sold-bar"><i id="sold-fill"></i></div>
+          </div>
+          <div style="display:grid;gap:8px">
+            <label for="usdc-in">Importe a pagar</label>
+            <div class="field"><input id="usdc-in" type="text" inputmode="decimal" value="250" autocomplete="off"><span>USDC</span></div>
+            <div class="quick" aria-label="Importes rápidos">
+              <button type="button" data-v="50">50</button><button type="button" data-v="250">250</button><button type="button" data-v="1000">1.000</button><button type="button" data-v="10000">Máx. 10.000</button>
+            </div>
+          </div>
+          <div class="out"><span class="eyebrow">Recibes</span><b class="num" id="grano-out">5.000 GRANO</b></div>
+          <div style="display:grid;gap:10px">
+            <button class="btn" type="button" id="connect-btn">Conectar wallet</button>
+            <button class="btn" type="button" id="buy-btn" hidden>Comprar</button>
+            <button class="btn ghost" type="button" id="faucet-btn" hidden>Conseguir 10.000 USDC de prueba</button>
+            <p class="msg" id="msg" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>Cómo se compra</h3>
+          <ol class="steps">
+            <li><span><b>Verifica tu identidad.</b> Un proceso KYC de unos minutos. Tu wallet queda en la lista de compradores autorizados.</span></li>
+            <li><span><b>Conecta tu wallet</b> en la red Polygon y ten USDC para el pago y un poco de POL para la comisión de red.</span></li>
+            <li><span><b>Aprueba el pago</b> de USDC al contrato de venta. Tu wallet te lo pedirá una vez.</span></li>
+            <li><span><b>Confirma la compra.</b> Los GRANO llegan a tu wallet en la misma transacción.</span></li>
+          </ol>
+          <dl class="terms">
+            <dt>Precio</dt><dd>0,05 USDC por GRANO</dd>
+            <dt>Mínimo</dt><dd>50 USDC · 1.000 GRANO</dd>
+            <dt>Máximo</dt><dd>10.000 USDC por wallet</dd>
+            <dt>Pago</dt><dd>Va directo a la tesorería multisig</dd>
+            <dt>No vendidos</dt><dd>Vuelven a la tesorería al cierre</dd>
+            <dt>Excluidos</dt><dd>EE. UU. y países sancionados</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ruta" style="padding-top:0">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Hoja de ruta</p>
+        <h2>Por fases, con hitos verificables</h2>
+      </div>
+      <div class="road">
+        <div class="phase cur"><p class="eyebrow">Fase 1 · En curso</p><h3>Base</h3><ul><li>Contratos en testnet</li><li>Auditoría externa</li><li>Acuerdos con las primeras cooperativas</li><li>Venta pública</li></ul></div>
+        <div class="phase"><p class="eyebrow">Fase 2</p><h3>Lanzamiento</h3><ul><li>Pasaporte de origen EUDR</li><li>Adopta una parcela, primera temporada</li><li>Tienda con quema</li><li>Mercado abierto en DEX (Uniswap / QuickSwap)</li></ul></div>
+        <div class="phase"><p class="eyebrow">Fase 3</p><h3>Comunidad</h3><ul><li>Subastas de microlotes</li><li>Votación del fondo de impacto</li><li>Solicitud de listado en exchanges centralizados</li></ul></div>
+        <div class="phase"><p class="eyebrow">Fase 4</p><h3>Escala</h3><ul><li>API de pasaportes para importadores</li><li>Más orígenes y cooperativas</li><li>Cafeterías y tiendas aliadas</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="riesgos" style="padding-top:0">
+    <div class="wrap two">
+      <div>
+        <div class="sec-head">
+          <p class="eyebrow">Antes de comprar</p>
+          <h2>Riesgos</h2>
+        </div>
+        <div class="risks">
+          <div class="risk"><i>Valor</i><p><b>GRANO no es una inversión.</b> No da derecho a beneficios, dividendos ni recompra, y su precio puede bajar hasta cero.</p></div>
+          <div class="risk"><i>Liquidez</i><p><b>El precio cambia con el mercado.</b> Tras la venta, GRANO cotiza libremente y puede subir o bajar. Ningún exchange está garantizado.</p></div>
+          <div class="risk"><i>Proyecto</i><p><b>La plataforma está en desarrollo.</b> Los usos descritos dependen de acuerdos con cooperativas y empresas que aún pueden cambiar.</p></div>
+          <div class="risk"><i>Técnico</i><p><b>Los contratos pueden tener fallos</b> aunque estén auditados, y si pierdes el acceso a tu wallet pierdes tus tokens.</p></div>
+          <div class="risk"><i>Legal</i><p><b>La regulación de criptoactivos cambia.</b> Comprueba que puedes comprar desde tu país.</p></div>
+        </div>
+      </div>
+      <div id="faq">
+        <div class="sec-head">
+          <p class="eyebrow">Preguntas</p>
+          <h2>FAQ</h2>
+        </div>
+        <details class="q"><summary>¿GRANO está respaldado por café o cacao?</summary><p>No. GRANO es un token de utilidad: sirve para pagar servicios y productos del ecosistema. No representa una cantidad de grano almacenada ni se puede canjear por un precio fijo.</p></details>
+        <details class="q"><summary>¿Por qué 0,05 USDC?</summary><p>Valora el proyecto en 5 millones de USDC con el suministro completo, una cifra coherente con una plataforma que empieza. El tope de la venta cubre la auditoría, el desarrollo y los primeros acuerdos sin emitir más tokens.</p></details>
+        <details class="q"><summary>¿El precio se queda fijo? ¿Cotizará en exchanges?</summary><p>El precio de 0,05 USDC solo se aplica durante la venta pública. Al cerrarla se abre un pool de liquidez en un exchange descentralizado y desde ese momento el precio lo fijan la oferta y la demanda. Después se solicitará el listado en exchanges centralizados.</p></details>
+        <details class="q"><summary>¿Se pueden crear más GRANO?</summary><p>No. El contrato crea los 100 millones una sola vez y no tiene ninguna función de emisión. La oferta solo puede bajar, con la quema.</p></details>
+        <details class="q"><summary>¿Qué es el EUDR?</summary><p>El reglamento europeo contra la deforestación. Obliga a quien comercializa café o cacao en la UE a demostrar la ubicación de la parcela y que no se deforestó después de 2020. El pasaporte de origen de GRANO recoge esa información por lote.</p></details>
+        <details class="q"><summary>¿Quién custodia el dinero de la venta?</summary><p>El contrato de venta no guarda fondos: cada pago va directamente a una wallet multisig de la tesorería, que necesita varias firmas para mover dinero.</p></details>
+        <details class="q"><summary>¿Necesito saber de cripto?</summary><p>Para esta venta necesitas una wallet compatible con Polygon. Más adelante la tienda y las parcelas aceptarán tarjeta y la wallet se creará por ti.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span class="logo" style="font-size:1.3rem">GRANO</span>
+    <p>GRANO es un criptoactivo de utilidad. Esta página es informativa y no constituye una oferta de valores, asesoramiento financiero ni una recomendación de inversión. Comprar criptoactivos conlleva riesgos, incluida la pérdida total de lo invertido. Antes de comprar, lee el documento informativo del criptoactivo y los términos de la venta.</p>
+    <p class="num">Contratos: <span id="addr-token">pendiente de despliegue</span> · Venta: <span id="addr-sale">pendiente de despliegue</span></p>
+  </div>
+</footer>
+
+<script>
+/* ===== Configuración: pega aquí las direcciones que imprime scripts/deploy.js ===== */
+const CONFIG = {
+  chainId: 80002,                 // 80002 = Polygon Amoy (testnet) · 137 = Polygon mainnet
+  chainName: "Polygon Amoy",
+  rpcUrl: "https://rpc-amoy.polygon.technology",
+  explorer: "https://amoy.polygonscan.com",
+  tokenAddress: "",
+  saleAddress: "",
+  usdcAddress: "",
+  usdcDecimals: 6,
+  mockUSDC: true,                 // true en testnet con el USDC de pruebas (muestra el botón para conseguirlo)
+  priceUSDC: 0.05,
+  minUSDC: 50,
+  maxUSDC: 10000,
+  saleCap: 15000000
+};
+
+const ALLOC = [
+  ["Ecosistema y recompensas", 25, "Lineal durante 48 meses"],
+  ["Venta pública", 15, "Inmediata"],
+  ["Productores y cooperativas", 15, "Lineal durante 36 meses"],
+  ["Tesorería", 15, "Bloqueo de 6 meses y 24 meses lineal"],
+  ["Equipo", 15, "Bloqueo de 12 meses y 36 meses lineal"],
+  ["Liquidez", 10, "Al crear el mercado"],
+  ["Asesores y socios", 5, "Bloqueo de 6 meses y 24 meses lineal"]
+];
+
+const fmt = (n, d = 0) => n.toLocaleString("es-ES", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const $ = (id) => document.getElementById(id);
+
+// Tokenomics
+(function renderAlloc() {
+  const box = $("alloc"), tb = $("alloc-table").querySelector("tbody");
+  const max = Math.max(...ALLOC.map(a => a[1]));
+  ALLOC.forEach(([name, pct, vest]) => {
+    const tokens = pct * 1e6;
+    const r = document.createElement("div");
+    r.className = "row"; r.setAttribute("role", "listitem");
+    r.title = `${name}: ${pct} % · ${fmt(tokens)} GRANO · ${vest}`;
+    r.innerHTML = `<span class="name"></span><span class="pct num">${pct} %</span>
+      <div class="track"><div class="fill" style="width:${(pct / max) * 100}%"></div></div>
+      <span class="vest"></span>`;
+    r.querySelector(".name").textContent = name;
+    r.querySelector(".vest").textContent = `${fmt(tokens)} GRANO · ${vest}`;
+    box.appendChild(r);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td></td><td class="r">${pct}</td><td class="r">${fmt(tokens)}</td><td></td>`;
+    tr.children[0].textContent = name; tr.children[3].textContent = vest;
+    tb.appendChild(tr);
+  });
+})();
+
+// Calculadora
+const input = $("usdc-in"), out = $("grano-out"), msg = $("msg");
+function parseAmount() {
+  const v = parseFloat(String(input.value).replace(/\./g, "").replace(",", "."));
+  return Number.isFinite(v) ? v : 0;
+}
+function validate(v) {
+  if (v < CONFIG.minUSDC) return `El mínimo es ${fmt(CONFIG.minUSDC)} USDC.`;
+  if (v > CONFIG.maxUSDC) return `El máximo por wallet es ${fmt(CONFIG.maxUSDC)} USDC.`;
+  return "";
+}
+function update() {
+  const v = parseAmount();
+  out.textContent = `${fmt(v / CONFIG.priceUSDC)} GRANO`;
+  const e = v ? validate(v) : "";
+  setMsg(e, e ? "err" : "");
+}
+function setMsg(t, cls) { msg.textContent = t; msg.className = "msg" + (cls ? " " + cls : ""); }
+input.addEventListener("input", update);
+document.querySelectorAll(".quick button").forEach(b => b.addEventListener("click", () => { input.value = b.dataset.v; update(); }));
+update();
+
+// Estado de la venta
+const live = !!(CONFIG.saleAddress && CONFIG.usdcAddress && CONFIG.tokenAddress);
+const banner = $("mode-banner");
+if (!live) {
+  banner.hidden = false;
+  banner.textContent = "Modo demostración: la venta aún no está desplegada. Puedes calcular cuántos GRANO recibirías, pero todavía no se puede comprar.";
+} else {
+  $("addr-token").textContent = CONFIG.tokenAddress;
+  $("addr-sale").textContent = CONFIG.saleAddress;
+  if (CONFIG.chainId !== 137) { banner.hidden = false; banner.textContent = `Red de pruebas (${CONFIG.chainName}). Los tokens no tienen valor real.`; }
+}
+
+function setSold(sold) {
+  const pct = Math.min(100, (sold / CONFIG.saleCap) * 100);
+  $("sold-fill").style.width = pct + "%";
+  $("sold-bar").setAttribute("aria-valuenow", pct.toFixed(1));
+  $("sold-label").textContent = `Vendido: ${fmt(sold)} GRANO (${fmt(pct, 1)} %)`;
+}
+setSold(0);
+
+// Compra on-chain (solo con contratos configurados)
+const SALE_ABI = [
+  "function buy(uint256 granoAmount)",
+  "function quote(uint256 granoAmount) view returns (uint256)",
+  "function totalSold() view returns (uint256)",
+  "function isActive() view returns (bool)",
+  "function allowlistEnabled() view returns (bool)",
+  "function allowlisted(address) view returns (bool)",
+  "function purchased(address) view returns (uint256)"
+];
+const ERC20_ABI = [
+  "function allowance(address,address) view returns (uint256)",
+  "function approve(address,uint256) returns (bool)",
+  "function balanceOf(address) view returns (uint256)",
+  "function mint(address,uint256)" // solo existe en el USDC de pruebas
+];
+let ethersLib = null, signer = null, account = null;
+
+function loadEthers() {
+  if (ethersLib) return Promise.resolve(ethersLib);
+  return new Promise((res, rej) => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js";
+    s.onload = () => { ethersLib = window.ethers; res(ethersLib); };
+    s.onerror = () => rej(new Error("No se pudo cargar la librería de la wallet."));
+    document.head.appendChild(s);
+  });
+}
+
+async function ensureChain() {
+  const hex = "0x" + CONFIG.chainId.toString(16);
+  try {
+    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
+  } catch (e) {
+    if (e && e.code === 4902) {
+      await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: hex, chainName: CONFIG.chainName, rpcUrls: [CONFIG.rpcUrl], nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 }, blockExplorerUrls: [CONFIG.explorer] }] });
+    } else throw e;
+  }
+}
+
+async function refreshSold() {
+  if (!live || !signer) return;
+  const sale = new ethersLib.Contract(CONFIG.saleAddress, SALE_ABI, signer);
+  const sold = await sale.totalSold();
+  setSold(Number(ethersLib.formatUnits(sold, 18)));
+}
+
+$("connect-btn").addEventListener("click", async () => {
+  if (!live) { setMsg("La venta todavía no está activa. Vuelve cuando se anuncie la fecha de apertura.", ""); return; }
+  if (!window.ethereum) { setMsg("No se ha detectado ninguna wallet. Instala MetaMask u otra compatible con Polygon y recarga la página.", "err"); return; }
+  try {
+    setMsg("Conectando…", "");
+    const E = await loadEthers();
+    await ensureChain();
+    const provider = new E.BrowserProvider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    signer = await provider.getSigner();
+    account = await signer.getAddress();
+    const sale = new E.Contract(CONFIG.saleAddress, SALE_ABI, signer);
+    if (await sale.allowlistEnabled() && !(await sale.allowlisted(account))) {
+      setMsg(`Wallet ${account.slice(0, 6)}…${account.slice(-4)} conectada, pero aún no está verificada. Completa el KYC para poder comprar.`, "err");
+    } else {
+      setMsg(`Wallet ${account.slice(0, 6)}…${account.slice(-4)} conectada.`, "ok");
+    }
+    $("connect-btn").hidden = true;
+    $("buy-btn").hidden = false;
+    if (CONFIG.chainId !== 137 && CONFIG.mockUSDC) $("faucet-btn").hidden = false;
+    await refreshSold();
+  } catch (e) {
+    setMsg(e?.shortMessage || e?.message || "No se pudo conectar la wallet.", "err");
+  }
+});
+
+$("faucet-btn").addEventListener("click", async () => {
+  const btn = $("faucet-btn"); btn.disabled = true;
+  try {
+    const usdc = new ethersLib.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
+    setMsg("Confirma en tu wallet para recibir USDC de prueba…", "");
+    await (await usdc.mint(account, ethersLib.parseUnits("10000", CONFIG.usdcDecimals))).wait();
+    setMsg("Has recibido 10.000 USDC de prueba. Ya puedes comprar.", "ok");
+  } catch (e) {
+    setMsg(e?.shortMessage || e?.message || "No se pudo conseguir USDC de prueba.", "err");
+  } finally { btn.disabled = false; }
+});
+
+$("buy-btn").addEventListener("click", async () => {
+  const v = parseAmount(), err = validate(v);
+  if (err) { setMsg(err, "err"); return; }
+  const btn = $("buy-btn"); btn.disabled = true;
+  try {
+    const E = ethersLib;
+    const sale = new E.Contract(CONFIG.saleAddress, SALE_ABI, signer);
+    const usdc = new E.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
+    if (!(await sale.isActive())) throw new Error("La venta no está abierta ahora mismo.");
+    const granoWei = E.parseUnits(String(Math.floor(v / CONFIG.priceUSDC)), 18);
+    const cost = await sale.quote(granoWei);
+    if ((await usdc.balanceOf(account)) < cost) throw new Error("No tienes suficiente USDC en esta wallet.");
+    if ((await usdc.allowance(account, CONFIG.saleAddress)) < cost) {
+      setMsg("Paso 1 de 2: aprueba el pago de USDC en tu wallet…", "");
+      await (await usdc.approve(CONFIG.saleAddress, cost)).wait();
+    }
+    setMsg("Paso 2 de 2: confirma la compra en tu wallet…", "");
+    const tx = await sale.buy(granoWei);
+    await tx.wait();
+    setMsg(`Compra completada: ${fmt(Number(E.formatUnits(granoWei, 18)))} GRANO enviados a tu wallet.`, "ok");
+    await refreshSold();
+  } catch (e) {
+    setMsg(e?.shortMessage || e?.reason || e?.message || "La compra no se ha completado.", "err");
+  } finally { btn.disabled = false; }
+});
+</script>
