@@ -16,3 +16,14 @@ jobs:
       - run: npm install
       - run: npx hardhat compile
       - run: npx hardhat test
+      - name: Ensayo del despliegue definitivo (red local)
+        env:
+          TREASURY_ADDRESS: "0x000000000000000000000000000000000000dEaD"
+        run: npx hardhat run scripts/deploy-token.js
+      - name: Ensayo del despliegue de prueba (red local)
+        env:
+          SKIP_VESTING: "1"
+          TREASURY_ADDRESS: "0x000000000000000000000000000000000000dEaD"
+          ALLOWLIST: "0x0cdDdE53d9b466C3a1089FE04aE965535325b1FE"
+          NEW_OWNER: "0x0cdDdE53d9b466C3a1089FE04aE965535325b1FE"
+        run: npx hardhat run scripts/deploy.js

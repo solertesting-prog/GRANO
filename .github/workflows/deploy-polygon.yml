@@ -1,0 +1,82 @@
+name: Desplegar GRANO en Polygon (definitivo)
+
+# Despliega el token y las bóvedas de vesting en Polygon mainnet. NO despliega la venta.
+# Crea una wallet temporal que solo paga el gas: no conserva ningún permiso ni token.
+# Todo queda a nombre de la multisig Safe de tesorería. El POL sobrante vuelve a refund_to.
+
+on:
+  workflow_dispatch:
+    inputs:
+      safe:
+        description: "Dirección de la multisig Safe de tesorería (en Polygon)"
+        required: true
+      refund_to:
+        description: "Wallet que recibe el POL sobrante"
+        required: true
+      confirm:
+        description: "Escribe DESPLEGAR para confirmar (irreversible)"
+        required: true
+
+permissions:
+  contents: read
+  statuses: write
+
+env:
+  POLYGON_RPC_URL: https://polygon-bor-rpc.publicnode.com
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - name: Confirmación
+        run: |
+          if [ "${{ inputs.confirm }}" != "DESPLEGAR" ]; then echo "::error::Falta confirmar con DESPLEGAR"; exit 1; fi
+
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npx hardhat test
+
+      - name: Wallet temporal de despliegue
+        run: |
+          KEY=$(node -e "console.log(require('ethers').Wallet.createRandom().privateKey)")
+          echo "::add-mask::$KEY"
+          ADDR=$(node -e "console.log(new (require('ethers').Wallet)(process.argv[1]).address)" "$KEY")
+          echo "::notice title=Envia POL (Polygon) a esta direccion::DEPLOYER=$ADDR"
+          GH_TOKEN=${{ github.token }} gh api repos/${{ github.repository }}/statuses/${{ github.sha }} -f state=pending -f context=grano-deployer-polygon -f description="$ADDR" > /dev/null
+          echo "PRIVATE_KEY=$KEY" >> "$GITHUB_ENV"
+
+      - name: Esperar POL
+        env:
+          WAIT_MINUTES: "60"
+          MIN_POL: "1"
+        run: npx hardhat run scripts/wait-funds.js --network polygon
+
+      - name: Desplegar token y bóvedas
+        env:
+          TREASURY_ADDRESS: ${{ inputs.safe }}
+        run: npx hardhat run scripts/deploy-token.js --network polygon
+
+      - name: Devolver el POL sobrante
+        if: always() && env.PRIVATE_KEY != ''
+        env:
+          REFUND_TO: ${{ inputs.refund_to }}
+        run: npx hardhat run scripts/refund.js --network polygon
+
+      - name: Resumen
+        if: success()
+        run: |
+          {
+            echo "## GRANO desplegado en Polygon"
+            echo '```json'
+            cat deployments/polygon.json
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: deployments-polygon
+          path: deployments/polygon.json
