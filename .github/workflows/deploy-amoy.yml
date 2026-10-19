@@ -18,6 +18,10 @@ on:
         description: "Wallets autorizadas a comprar (separadas por comas)"
         required: false
         default: ""
+      lite:
+        description: "Sin bóvedas de vesting (gasta la mitad de POL). Solo pruebas"
+        required: false
+        default: "1"
       sale_days:
         description: "Duración de la venta en días"
         required: false
@@ -61,6 +65,7 @@ jobs:
       - name: Esperar POL de prueba
         env:
           WAIT_MINUTES: "60"
+          MIN_POL: "0.15"
         run: npx hardhat run scripts/wait-funds.js --network amoy
 
       - name: Desplegar
@@ -71,6 +76,7 @@ jobs:
           PRODUCERS_ADDRESS: ${{ inputs.owner }}
           ECOSYSTEM_ADDRESS: ${{ inputs.owner }}
           NEW_OWNER: ${{ inputs.owner }}
+          SKIP_VESTING: ${{ inputs.lite }}
           ALLOWLIST: ${{ inputs.allowlist }}
           SALE_DAYS: ${{ inputs.sale_days }}
         run: |
@@ -78,7 +84,14 @@ jobs:
           npx hardhat run scripts/deploy.js --network amoy
           echo "::notice title=GRANO desplegado::$(tr -d '\n' < deployments/amoy.json)"
 
+      - name: Devolver el POL sobrante
+        if: always() && env.PRIVATE_KEY != ''
+        env:
+          REFUND_TO: ${{ inputs.owner }}
+        run: npx hardhat run scripts/refund.js --network amoy
+
       - name: Resumen
+        if: success()
         run: |
           {
             echo "## GRANO desplegado en Polygon Amoy"
