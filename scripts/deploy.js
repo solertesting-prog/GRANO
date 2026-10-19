@@ -13,6 +13,7 @@
  *   SALE_START           timestamp unix de inicio (por defecto: dentro de 10 minutos)
  *   SALE_DAYS            duración en días (por defecto: 30)
  *   ALLOWLIST            wallets autorizadas a comprar, separadas por comas (pruebas)
+ *   SKIP_VESTING=1       solo testnet: reparte sin bóvedas de vesting (mitad de gas)
  *   NEW_OWNER            wallet que pasará a administrar la venta (traspaso en 2 pasos)
  */
 const fs = require("fs");
@@ -79,8 +80,18 @@ async function main() {
 
   // 4. Reparto
   await (await token.transfer(saleAddr, saleCfg.saleCap)).wait();
+  // SKIP_VESTING=1 (solo pruebas): en lugar de una bóveda por partida, los tokens van
+  // directos al beneficiario. Ahorra 5 despliegues de contrato (~la mitad del gas).
+  const skipVesting = env.SKIP_VESTING === "1";
+  if (skipVesting && network.name === "polygon") throw new Error("SKIP_VESTING no se permite en mainnet");
   for (const [name, who, amount, lock, linear] of plan) {
     const beneficiary = who || deployer.address;
+    if (skipVesting) {
+      await (await token.transfer(beneficiary, G(amount))).wait();
+      deployed.vesting[name] = `${beneficiary} (sin bóveda: prueba)`;
+      console.log(`${name}: ${amount.toLocaleString("es-ES")} GRANO directos a ${beneficiary}`);
+      continue;
+    }
     const v = await ethers.deployContract("GranoVesting", [beneficiary, now + lock * MONTH, linear * MONTH]);
     await v.waitForDeployment();
     const addr = await v.getAddress();
