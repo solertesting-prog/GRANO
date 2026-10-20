@@ -219,13 +219,13 @@ footer p{max-width:90ch}
         <h1>Del cafetal a tu taza, <em>con prueba</em> en cada grano</h1>
         <p class="lede">GRANO es el token del ecosistema de café y cacao trazables. Con él se pagan los pasaportes de origen que exige la normativa europea, se reservan cosechas de parcelas concretas y se compra producto con descuento. Cada GRANO canjeado se quema.</p>
         <div class="ctas">
-          <a class="btn" href="#venta">Participar en la venta</a>
+          <a class="btn" href="#venta">Comprar en Uniswap</a>
           <a class="btn ghost" href="#tokenomics">Ver tokenomics</a>
         </div>
         <div class="facts">
-          <div><b class="num">0,05 USDC</b><span>Precio fijo de venta</span></div>
+          <div><b class="num">0,05 USDC</b><span>Precio de apertura</span></div>
           <div><b class="num">100M</b><span>Suministro fijo</span></div>
-          <div><b class="num">15M</b><span>A la venta (15 %)</span></div>
+          <div><b class="num">Uniswap</b><span>Mercado abierto</span></div>
           <div><b>Polygon</b><span>Red</span></div>
         </div>
       </div>
@@ -308,7 +308,7 @@ footer p{max-width:90ch}
       </div>
       <div class="cycle">
         <div><span class="k">EMISIÓN</span><h3>Una sola vez</h3><p>Se crean 100 millones de GRANO en el despliegue. El contrato no permite crear más.</p></div>
-        <div><span class="k">ENTRADA</span><h3>Compra</h3><p>Empresas y consumidores adquieren GRANO en la venta y, más adelante, en el mercado.</p></div>
+        <div><span class="k">ENTRADA</span><h3>Compra</h3><p>Empresas y consumidores adquieren GRANO en el mercado abierto de Uniswap.</p></div>
         <div><span class="k">USO</span><h3>Gasto</h3><p>Pasaportes de origen, reservas de parcela, tienda y subastas.</p></div>
         <div><span class="k">SALIDA</span><h3>Quema</h3><p>Los tokens canjeados por producto o servicio se destruyen y la oferta total baja.</p></div>
       </div>
@@ -344,47 +344,43 @@ footer p{max-width:90ch}
   <section id="venta">
     <div class="wrap">
       <div class="sec-head">
-        <p class="eyebrow">Venta pública</p>
+        <p class="eyebrow">Mercado abierto · Uniswap v3 · Polygon</p>
         <h2>Comprar GRANO</h2>
-        <p class="lede">Precio fijo para todos durante toda la venta, sin rondas con descuento. Pagas en USDC y recibes los GRANO al instante en tu wallet.</p>
+        <p class="lede">GRANO cotiza en Uniswap, el mayor exchange descentralizado. Pagas en USDC desde tu wallet y recibes los GRANO al momento. El precio de partida fue 0,05 USDC y desde ahí lo marca el mercado.</p>
       </div>
       <div class="sale">
         <div class="panel">
-          <p class="banner" id="mode-banner" hidden></p>
-          <div class="progress">
-            <div class="lab"><span id="sold-label">Vendido: 0 GRANO</span><span>Tope: 15.000.000</span></div>
-            <div class="bar" role="progressbar" aria-label="Progreso de la venta" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="sold-bar"><i id="sold-fill"></i></div>
-          </div>
           <div style="display:grid;gap:8px">
-            <label for="usdc-in">Importe a pagar</label>
+            <label for="usdc-in">Calculadora orientativa al precio de apertura</label>
             <div class="field"><input id="usdc-in" type="text" inputmode="decimal" value="250" autocomplete="off"><span>USDC</span></div>
             <div class="quick" aria-label="Importes rápidos">
-              <button type="button" data-v="50">50</button><button type="button" data-v="250">250</button><button type="button" data-v="1000">1.000</button><button type="button" data-v="10000">Máx. 10.000</button>
+              <button type="button" data-v="50">50</button><button type="button" data-v="250">250</button><button type="button" data-v="1000">1.000</button><button type="button" data-v="5000">5.000</button>
             </div>
           </div>
-          <div class="out"><span class="eyebrow">Recibes</span><b class="num" id="grano-out">5.000 GRANO</b></div>
-          <div style="display:grid;gap:10px">
-            <button class="btn" type="button" id="connect-btn">Conectar wallet</button>
-            <button class="btn" type="button" id="buy-btn" hidden>Comprar</button>
-            <button class="btn ghost" type="button" id="faucet-btn" hidden>Conseguir 10.000 USDC de prueba</button>
-            <p class="msg" id="msg" role="status" aria-live="polite"></p>
+          <div class="out"><span class="eyebrow">Recibirías aprox.</span><b class="num" id="grano-out">5.000 GRANO</b></div>
+          <p class="msg" id="msg">El precio real puede ser distinto: compruébalo en Uniswap antes de confirmar.</p>
+          <a class="btn" href="https://app.uniswap.org/swap?chain=polygon&amp;inputCurrency=0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359&amp;outputCurrency=0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438" target="_blank" rel="noopener">Comprar en Uniswap</a>
+          <div style="display:grid;gap:6px">
+            <span class="eyebrow">Contrato oficial de GRANO (Polygon)</span>
+            <div class="field"><input id="token-addr" type="text" readonly value="0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438"><span><button type="button" class="btn ghost" id="copy-btn" style="padding:6px 10px;border:0">Copiar</button></span></div>
+            <p class="msg" style="margin:0">Existe un token antiguo con el mismo nombre que no es oficial. Usa siempre esta dirección.</p>
           </div>
         </div>
         <div class="panel">
           <h3>Cómo se compra</h3>
           <ol class="steps">
-            <li><span><b>Verifica tu identidad.</b> Un proceso KYC de unos minutos. Tu wallet queda en la lista de compradores autorizados.</span></li>
-            <li><span><b>Conecta tu wallet</b> en la red Polygon y ten USDC para el pago y un poco de POL para la comisión de red.</span></li>
-            <li><span><b>Aprueba el pago</b> de USDC al contrato de venta. Tu wallet te lo pedirá una vez.</span></li>
-            <li><span><b>Confirma la compra.</b> Los GRANO llegan a tu wallet en la misma transacción.</span></li>
+            <li><span><b>Ten una wallet</b> como MetaMask en la red <b>Polygon</b>.</span></li>
+            <li><span><b>Consigue USDC en Polygon</b> y un poco de POL para la comisión de red (céntimos).</span></li>
+            <li><span><b>Pulsa "Comprar en Uniswap"</b>, conecta tu wallet y revisa la cantidad y el precio.</span></li>
+            <li><span><b>Confirma.</b> Si GRANO no aparece en tu wallet, añádelo con la dirección del contrato.</span></li>
           </ol>
           <dl class="terms">
-            <dt>Precio</dt><dd>0,05 USDC por GRANO</dd>
-            <dt>Mínimo</dt><dd>50 USDC · 1.000 GRANO</dd>
-            <dt>Máximo</dt><dd>10.000 USDC por wallet</dd>
-            <dt>Pago</dt><dd>Va directo a la tesorería multisig</dd>
-            <dt>No vendidos</dt><dd>Vuelven a la tesorería al cierre</dd>
-            <dt>Excluidos</dt><dd>EE. UU. y países sancionados</dd>
+            <dt>Par</dt><dd>USDC / GRANO</dd>
+            <dt>Precio de apertura</dt><dd>0,05 USDC por GRANO</dd>
+            <dt>Comisión del pool</dt><dd>1 % por operación</dd>
+            <dt>Liquidez inicial</dt><dd>2.000.000 GRANO</dd>
+            <dt>Pool</dt><dd><a href="https://polygonscan.com/address/0xbd5114d7ea37bf78f70d5234c791783f1ebba243" target="_blank" rel="noopener">0xbd51…a243</a></dd>
+            <dt>Código</dt><dd><a href="https://polygonscan.com/token/0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438#code" target="_blank" rel="noopener">Verificado en Polygonscan</a></dd>
           </dl>
         </div>
       </div>
@@ -428,11 +424,11 @@ footer p{max-width:90ch}
         </div>
         <details class="q"><summary>¿GRANO está respaldado por café o cacao?</summary><p>No. GRANO es un token de utilidad: sirve para pagar servicios y productos del ecosistema. No representa una cantidad de grano almacenada ni se puede canjear por un precio fijo.</p></details>
         <details class="q"><summary>¿Por qué 0,05 USDC?</summary><p>Valora el proyecto en 5 millones de USDC con el suministro completo, una cifra coherente con una plataforma que empieza. El tope de la venta cubre la auditoría, el desarrollo y los primeros acuerdos sin emitir más tokens.</p></details>
-        <details class="q"><summary>¿El precio se queda fijo? ¿Cotizará en exchanges?</summary><p>El precio de 0,05 USDC solo se aplica durante la venta pública. Al cerrarla se abre un pool de liquidez en un exchange descentralizado y desde ese momento el precio lo fijan la oferta y la demanda. Después se solicitará el listado en exchanges centralizados.</p></details>
+        <details class="q"><summary>¿El precio es fijo?</summary><p>No. GRANO abrió en Uniswap a 0,05 USDC y desde entonces el precio lo fijan la oferta y la demanda: sube cuando se compra y baja cuando se vende. Más adelante se solicitará el listado en exchanges centralizados.</p></details>
         <details class="q"><summary>¿Se pueden crear más GRANO?</summary><p>No. El contrato crea los 100 millones una sola vez y no tiene ninguna función de emisión. La oferta solo puede bajar, con la quema.</p></details>
         <details class="q"><summary>¿Qué es el EUDR?</summary><p>El reglamento europeo contra la deforestación. Obliga a quien comercializa café o cacao en la UE a demostrar la ubicación de la parcela y que no se deforestó después de 2020. El pasaporte de origen de GRANO recoge esa información por lote.</p></details>
-        <details class="q"><summary>¿Quién custodia el dinero de la venta?</summary><p>El contrato de venta no guarda fondos: cada pago va directamente a una wallet multisig de la tesorería, que necesita varias firmas para mover dinero.</p></details>
-        <details class="q"><summary>¿Necesito saber de cripto?</summary><p>Para esta venta necesitas una wallet compatible con Polygon. Más adelante la tienda y las parcelas aceptarán tarjeta y la wallet se creará por ti.</p></details>
+        <details class="q"><summary>¿Quién custodia los fondos del proyecto?</summary><p>La tesorería y la liquidez están en una wallet multisig (Safe). Todas sus direcciones son públicas y cualquiera puede consultar los saldos en Polygonscan.</p></details>
+        <details class="q"><summary>¿Necesito saber de cripto?</summary><p>Para comprar ahora necesitas una wallet compatible con Polygon. Más adelante la tienda y las parcelas aceptarán tarjeta y la wallet se creará por ti.</p></details>
       </div>
     </div>
   </section>
@@ -441,27 +437,18 @@ footer p{max-width:90ch}
 <footer>
   <div class="wrap">
     <span class="logo" style="font-size:1.3rem">GRANO</span>
-    <p>GRANO es un criptoactivo de utilidad. Esta página es informativa y no constituye una oferta de valores, asesoramiento financiero ni una recomendación de inversión. Comprar criptoactivos conlleva riesgos, incluida la pérdida total de lo invertido. Antes de comprar, lee el documento informativo del criptoactivo y los términos de la venta.</p>
-    <p class="num">Contratos: <span id="addr-token">pendiente de despliegue</span> · Venta: <span id="addr-sale">pendiente de despliegue</span></p>
+    <p>GRANO es un criptoactivo de utilidad. Esta página es informativa y no constituye una oferta de valores, asesoramiento financiero ni una recomendación de inversión. Comprar criptoactivos conlleva riesgos, incluida la pérdida total de lo invertido. Antes de comprar, lee el documento informativo del criptoactivo .</p>
+    <p class="num">Token oficial: <a href="https://polygonscan.com/token/0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438" target="_blank" rel="noopener">0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438</a> · Pool: <a href="https://polygonscan.com/address/0xbd5114d7ea37bf78f70d5234c791783f1ebba243" target="_blank" rel="noopener">0xbd5114d7ea37bf78f70d5234c791783f1ebba243</a></p>
   </div>
 </footer>
 
 <script>
 /* ===== Configuración: pega aquí las direcciones que imprime scripts/deploy.js ===== */
 const CONFIG = {
-  chainId: 80002,                 // 80002 = Polygon Amoy (testnet) · 137 = Polygon mainnet
-  chainName: "Polygon Amoy",
-  rpcUrl: "https://rpc-amoy.polygon.technology",
-  explorer: "https://amoy.polygonscan.com",
-  tokenAddress: "",
-  saleAddress: "",
-  usdcAddress: "",
-  usdcDecimals: 6,
-  mockUSDC: true,                 // true en testnet con el USDC de pruebas (muestra el botón para conseguirlo)
-  priceUSDC: 0.05,
-  minUSDC: 50,
-  maxUSDC: 10000,
-  saleCap: 15000000
+  tokenAddress: "0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438",
+  usdcAddress: "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+  pool: "0xbd5114d7ea37bf78f70d5234c791783f1ebba243",
+  priceUSDC: 0.05
 };
 
 const ALLOC = [
@@ -499,156 +486,22 @@ const $ = (id) => document.getElementById(id);
   });
 })();
 
-// Calculadora
-const input = $("usdc-in"), out = $("grano-out"), msg = $("msg");
+// Calculadora orientativa
+const input = $("usdc-in"), out = $("grano-out");
 function parseAmount() {
   const v = parseFloat(String(input.value).replace(/\./g, "").replace(",", "."));
-  return Number.isFinite(v) ? v : 0;
+  return Number.isFinite(v) && v > 0 ? v : 0;
 }
-function validate(v) {
-  if (v < CONFIG.minUSDC) return `El mínimo es ${fmt(CONFIG.minUSDC)} USDC.`;
-  if (v > CONFIG.maxUSDC) return `El máximo por wallet es ${fmt(CONFIG.maxUSDC)} USDC.`;
-  return "";
-}
-function update() {
-  const v = parseAmount();
-  out.textContent = `${fmt(v / CONFIG.priceUSDC)} GRANO`;
-  const e = v ? validate(v) : "";
-  setMsg(e, e ? "err" : "");
-}
-function setMsg(t, cls) { msg.textContent = t; msg.className = "msg" + (cls ? " " + cls : ""); }
+function update() { out.textContent = `${fmt(parseAmount() / CONFIG.priceUSDC)} GRANO`; }
 input.addEventListener("input", update);
 document.querySelectorAll(".quick button").forEach(b => b.addEventListener("click", () => { input.value = b.dataset.v; update(); }));
 update();
 
-// Estado de la venta
-const live = !!(CONFIG.saleAddress && CONFIG.usdcAddress && CONFIG.tokenAddress);
-const banner = $("mode-banner");
-if (!live) {
-  banner.hidden = false;
-  banner.textContent = "Modo demostración: la venta aún no está desplegada. Puedes calcular cuántos GRANO recibirías, pero todavía no se puede comprar.";
-} else {
-  $("addr-token").textContent = CONFIG.tokenAddress;
-  $("addr-sale").textContent = CONFIG.saleAddress;
-  if (CONFIG.chainId !== 137) { banner.hidden = false; banner.textContent = `Red de pruebas (${CONFIG.chainName}). Los tokens no tienen valor real.`; }
-}
-
-function setSold(sold) {
-  const pct = Math.min(100, (sold / CONFIG.saleCap) * 100);
-  $("sold-fill").style.width = pct + "%";
-  $("sold-bar").setAttribute("aria-valuenow", pct.toFixed(1));
-  $("sold-label").textContent = `Vendido: ${fmt(sold)} GRANO (${fmt(pct, 1)} %)`;
-}
-setSold(0);
-
-// Compra on-chain (solo con contratos configurados)
-const SALE_ABI = [
-  "function buy(uint256 granoAmount)",
-  "function quote(uint256 granoAmount) view returns (uint256)",
-  "function totalSold() view returns (uint256)",
-  "function isActive() view returns (bool)",
-  "function allowlistEnabled() view returns (bool)",
-  "function allowlisted(address) view returns (bool)",
-  "function purchased(address) view returns (uint256)"
-];
-const ERC20_ABI = [
-  "function allowance(address,address) view returns (uint256)",
-  "function approve(address,uint256) returns (bool)",
-  "function balanceOf(address) view returns (uint256)",
-  "function mint(address,uint256)" // solo existe en el USDC de pruebas
-];
-let ethersLib = null, signer = null, account = null;
-
-function loadEthers() {
-  if (ethersLib) return Promise.resolve(ethersLib);
-  return new Promise((res, rej) => {
-    const s = document.createElement("script");
-    s.src = "https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js";
-    s.onload = () => { ethersLib = window.ethers; res(ethersLib); };
-    s.onerror = () => rej(new Error("No se pudo cargar la librería de la wallet."));
-    document.head.appendChild(s);
-  });
-}
-
-async function ensureChain() {
-  const hex = "0x" + CONFIG.chainId.toString(16);
+$("copy-btn").addEventListener("click", () => {
+  const el = $("token-addr");
+  const done = () => { $("copy-btn").textContent = "Copiado"; setTimeout(() => ($("copy-btn").textContent = "Copiar"), 1500); };
   try {
-    await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: hex }] });
-  } catch (e) {
-    if (e && e.code === 4902) {
-      await window.ethereum.request({ method: "wallet_addEthereumChain", params: [{ chainId: hex, chainName: CONFIG.chainName, rpcUrls: [CONFIG.rpcUrl], nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 }, blockExplorerUrls: [CONFIG.explorer] }] });
-    } else throw e;
-  }
-}
-
-async function refreshSold() {
-  if (!live || !signer) return;
-  const sale = new ethersLib.Contract(CONFIG.saleAddress, SALE_ABI, signer);
-  const sold = await sale.totalSold();
-  setSold(Number(ethersLib.formatUnits(sold, 18)));
-}
-
-$("connect-btn").addEventListener("click", async () => {
-  if (!live) { setMsg("La venta todavía no está activa. Vuelve cuando se anuncie la fecha de apertura.", ""); return; }
-  if (!window.ethereum) { setMsg("No se ha detectado ninguna wallet. Instala MetaMask u otra compatible con Polygon y recarga la página.", "err"); return; }
-  try {
-    setMsg("Conectando…", "");
-    const E = await loadEthers();
-    await ensureChain();
-    const provider = new E.BrowserProvider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    signer = await provider.getSigner();
-    account = await signer.getAddress();
-    const sale = new E.Contract(CONFIG.saleAddress, SALE_ABI, signer);
-    if (await sale.allowlistEnabled() && !(await sale.allowlisted(account))) {
-      setMsg(`Wallet ${account.slice(0, 6)}…${account.slice(-4)} conectada, pero aún no está verificada. Completa el KYC para poder comprar.`, "err");
-    } else {
-      setMsg(`Wallet ${account.slice(0, 6)}…${account.slice(-4)} conectada.`, "ok");
-    }
-    $("connect-btn").hidden = true;
-    $("buy-btn").hidden = false;
-    if (CONFIG.chainId !== 137 && CONFIG.mockUSDC) $("faucet-btn").hidden = false;
-    await refreshSold();
-  } catch (e) {
-    setMsg(e?.shortMessage || e?.message || "No se pudo conectar la wallet.", "err");
-  }
-});
-
-$("faucet-btn").addEventListener("click", async () => {
-  const btn = $("faucet-btn"); btn.disabled = true;
-  try {
-    const usdc = new ethersLib.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
-    setMsg("Confirma en tu wallet para recibir USDC de prueba…", "");
-    await (await usdc.mint(account, ethersLib.parseUnits("10000", CONFIG.usdcDecimals))).wait();
-    setMsg("Has recibido 10.000 USDC de prueba. Ya puedes comprar.", "ok");
-  } catch (e) {
-    setMsg(e?.shortMessage || e?.message || "No se pudo conseguir USDC de prueba.", "err");
-  } finally { btn.disabled = false; }
-});
-
-$("buy-btn").addEventListener("click", async () => {
-  const v = parseAmount(), err = validate(v);
-  if (err) { setMsg(err, "err"); return; }
-  const btn = $("buy-btn"); btn.disabled = true;
-  try {
-    const E = ethersLib;
-    const sale = new E.Contract(CONFIG.saleAddress, SALE_ABI, signer);
-    const usdc = new E.Contract(CONFIG.usdcAddress, ERC20_ABI, signer);
-    if (!(await sale.isActive())) throw new Error("La venta no está abierta ahora mismo.");
-    const granoWei = E.parseUnits(String(Math.floor(v / CONFIG.priceUSDC)), 18);
-    const cost = await sale.quote(granoWei);
-    if ((await usdc.balanceOf(account)) < cost) throw new Error("No tienes suficiente USDC en esta wallet.");
-    if ((await usdc.allowance(account, CONFIG.saleAddress)) < cost) {
-      setMsg("Paso 1 de 2: aprueba el pago de USDC en tu wallet…", "");
-      await (await usdc.approve(CONFIG.saleAddress, cost)).wait();
-    }
-    setMsg("Paso 2 de 2: confirma la compra en tu wallet…", "");
-    const tx = await sale.buy(granoWei);
-    await tx.wait();
-    setMsg(`Compra completada: ${fmt(Number(E.formatUnits(granoWei, 18)))} GRANO enviados a tu wallet.`, "ok");
-    await refreshSold();
-  } catch (e) {
-    setMsg(e?.shortMessage || e?.reason || e?.message || "La compra no se ha completado.", "err");
-  } finally { btn.disabled = false; }
+    navigator.clipboard.writeText(el.value).then(done, () => { el.select(); });
+  } catch (e) { el.select(); }
 });
 </script>
