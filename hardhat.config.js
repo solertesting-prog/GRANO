@@ -21,7 +21,7 @@ module.exports = {
       gasPrice,
     },
     polygon: {
-      url: POLYGON_RPC_URL || "https://polygon-rpc.com",
+      url: POLYGON_RPC_URL || "https://polygon.drpc.org",
       chainId: 137,
       accounts,
       gasPrice,

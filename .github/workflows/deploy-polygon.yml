@@ -23,7 +23,7 @@ permissions:
   statuses: write
 
 env:
-  POLYGON_RPC_URL: https://polygon-rpc.com
+  POLYGON_RPC_URL: https://polygon.drpc.org
 
 jobs:
   deploy:
