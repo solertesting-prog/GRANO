@@ -100,6 +100,6 @@ async function main() {
 }
 
 main().catch((e) => {
-  console.log(`::error title=Despliegue::${(e.shortMessage || e.message || String(e)).split("\n")[0]}`);
+  console.log(`::error title=Despliegue::${(e.shortMessage || e.message || String(e)).replace(/\s+/g, " ").slice(0, 400)}`);
   process.exitCode = 1;
 });
