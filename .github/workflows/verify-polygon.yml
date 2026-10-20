@@ -17,6 +17,6 @@ jobs:
       - run: npm install
       - name: Verificar
         env:
-          POLYGON_RPC_URL: https://polygon-rpc.com
+          POLYGON_RPC_URL: https://polygon-bor-rpc.publicnode.com
           POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
         run: npx hardhat run scripts/verify-polygon.js --network polygon
