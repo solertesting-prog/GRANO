@@ -1,6 +1,7 @@
 name: Desplegar GRANO en Polygon (definitivo)
 
-# Despliega el token y las bóvedas de vesting en Polygon mainnet. NO despliega la venta.
+# Despliega el token y las bóvedas de vesting en Polygon mainnet en UNA transacción
+# (contrato GranoLauncher): o se crea todo o nada. NO despliega la venta.
 # Crea una wallet temporal que solo paga el gas: no conserva ningún permiso ni token.
 # Todo queda a nombre de la multisig Safe de tesorería. El POL sobrante vuelve a refund_to.
 
@@ -52,19 +53,31 @@ jobs:
       - name: Esperar POL
         env:
           WAIT_MINUTES: "60"
-          MIN_POL: "1"
+          MIN_POL: "3"
         run: npx hardhat run scripts/wait-funds.js --network polygon
+
+      - name: Precio del gas
+        run: |
+          HEX=$(curl -s -X POST "$POLYGON_RPC_URL" -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"eth_gasPrice","params":[]}' | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d).result))")
+          WEI=$(node -e "const g=BigInt(process.argv[1]);const f=50n*10n**9n;const p=g*3n/2n>f?g*3n/2n:f;console.log(p.toString())" "$HEX")
+          echo "Precio de red: $(node -e "console.log(Number(BigInt(process.argv[1]))/1e9)" "$HEX") gwei; usado: $((WEI/1000000000)) gwei"
+          echo "GAS_PRICE_WEI=$WEI" >> "$GITHUB_ENV"
 
       - name: Desplegar token y bóvedas
         env:
           TREASURY_ADDRESS: ${{ inputs.safe }}
-        run: npx hardhat run scripts/deploy-token.js --network polygon
+        run: |
+          set -o pipefail
+          npx hardhat run scripts/deploy-token.js --network polygon 2>&1 | tee deploy.log || {
+            tail -n 12 deploy.log | grep -v '^\s*$' | sed 's/^/::error title=Salida del despliegue::/' | cut -c1-500
+            exit 1
+          }
 
       - name: Devolver el POL sobrante
         if: always() && env.PRIVATE_KEY != ''
         env:
           REFUND_TO: ${{ inputs.refund_to }}
-        run: npx hardhat run scripts/refund.js --network polygon
+        run: npx hardhat run scripts/refund.js --network polygon 2>&1 | tee refund.log
 
       - name: Resumen
         if: success()
