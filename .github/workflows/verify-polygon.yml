@@ -2,6 +2,11 @@ name: Verificar contratos en Polygon
 
 on:
   workflow_dispatch:
+    inputs:
+      api_key:
+        description: "Clave de API de Etherscan (si no hay secreto POLYGONSCAN_API_KEY). Se oculta en los registros"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -18,5 +23,9 @@ jobs:
       - name: Verificar
         env:
           POLYGON_RPC_URL: https://polygon-bor-rpc.publicnode.com
-          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
-        run: npx hardhat run scripts/verify-polygon.js --network polygon
+          SECRET_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: |
+          KEY=$(jq -r '.inputs.api_key // empty' "$GITHUB_EVENT_PATH")
+          [ -n "$KEY" ] && echo "::add-mask::$KEY"
+          export POLYGONSCAN_API_KEY="${KEY:-$SECRET_KEY}"
+          npx hardhat run scripts/verify-polygon.js --network polygon
