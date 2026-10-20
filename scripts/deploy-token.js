@@ -1,11 +1,7 @@
 /**
- * Despliegue DEFINITIVO del token GRANO (sin contrato de venta).
- *
- *  1. GranoToken: 100.000.000 GRANO de suministro fijo.
- *  2. Una bóveda de vesting por partida, a nombre de la tesorería (multisig Safe).
- *  3. Venta pública (15M) y liquidez (10M) a la tesorería: la venta se desplegará
- *     más adelante con scripts/deploy-sale.js, cuando la parte legal esté lista.
- *  4. Comprobaciones finales: el desplegador termina con 0 GRANO y todo cuadra.
+ * Despliegue DEFINITIVO de GRANO en UNA sola transacción (contrato GranoLauncher):
+ * token de 100M, cinco bóvedas de vesting y el reparto. O se crea todo o nada.
+ * La venta se despliega más adelante, cuando la parte legal esté lista.
  *
  * Variables de entorno:
  *   PRIVATE_KEY        clave del desplegador (puede ser temporal: no conserva ningún permiso)
@@ -18,10 +14,8 @@ const path = require("path");
 const { ethers, network } = require("hardhat");
 
 const G = (n) => ethers.parseUnits(String(n), 18);
-const MONTH = 30 * 24 * 3600;
 
 function fail(msg) {
-  console.log(`::error title=Despliegue::${msg}`);
   throw new Error(msg);
 }
 
@@ -30,69 +24,60 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   const treasury = env.TREASURY_ADDRESS;
   if (!treasury || !ethers.isAddress(treasury)) fail("TREASURY_ADDRESS no es una dirección válida");
-
-  // La tesorería debe ser una multisig (un contrato), no una wallet normal
-  const code = await ethers.provider.getCode(treasury);
-  if (network.name === "polygon" && code === "0x") {
+  if (network.name === "polygon" && (await ethers.provider.getCode(treasury)) === "0x") {
     fail(`${treasury} no es un contrato: crea primero la Safe en Polygon y usa su dirección`);
   }
-
   const who = (v) => (v && ethers.isAddress(v) ? v : treasury);
-  const now = Math.floor(Date.now() / 1000);
+  const args = [treasury, who(env.ECOSYSTEM_ADDRESS), who(env.PRODUCERS_ADDRESS), who(env.TEAM_ADDRESS), who(env.ADVISORS_ADDRESS)];
+
   console.log(`Red: ${network.name} | Desplegador: ${deployer.address} | Tesorería: ${treasury}`);
 
-  // 1. Token
-  const token = await ethers.deployContract("GranoToken", [deployer.address]);
-  await token.waitForDeployment();
-  const tokenAddr = await token.getAddress();
-  console.log("GranoToken:", tokenAddr);
+  // Estimación previa: si no hay saldo suficiente, no se envía nada
+  const Launcher = await ethers.getContractFactory("GranoLauncher");
+  const txReq = await Launcher.getDeployTransaction(...args);
+  const gas = await ethers.provider.estimateGas({ ...txReq, from: deployer.address });
+  const gasLimit = (gas * 125n) / 100n;
+  const fee = await ethers.provider.getFeeData();
+  const price = fee.gasPrice || fee.maxFeePerGas;
+  const bal = await ethers.provider.getBalance(deployer.address);
+  console.log(`Gas estimado: ${gas} | coste máximo: ${ethers.formatEther(gasLimit * price)} POL | saldo: ${ethers.formatEther(bal)} POL`);
+  if (bal < gasLimit * price) fail(`Saldo insuficiente: hacen falta ${ethers.formatEther(gasLimit * price)} POL`);
 
-  // 2. Bóvedas: [partida, beneficiario, GRANO, bloqueo (meses), liberación lineal (meses)]
-  const plan = [
-    ["Ecosistema y recompensas", who(env.ECOSYSTEM_ADDRESS), 25_000_000, 0, 48],
-    ["Productores y cooperativas", who(env.PRODUCERS_ADDRESS), 15_000_000, 0, 36],
-    ["Tesorería", treasury, 15_000_000, 6, 24],
-    ["Equipo", who(env.TEAM_ADDRESS), 15_000_000, 12, 36],
-    ["Asesores y socios", who(env.ADVISORS_ADDRESS), 5_000_000, 6, 24],
-  ];
+  // UNA transacción
+  const launcher = await Launcher.deploy(...args, { gasLimit });
+  const receipt = await launcher.deploymentTransaction().wait();
+  if (receipt.status !== 1) fail(`La transacción ${receipt.hash} se revirtió: no se ha creado nada`);
+  const launcherAddr = await launcher.getAddress();
+  console.log(`Lanzador: ${launcherAddr} | tx ${receipt.hash} | gas usado ${receipt.gasUsed}`);
+
+  const token = await ethers.getContractAt("GranoToken", await launcher.token());
+  const vaults = {
+    "Ecosistema y recompensas": [await launcher.ecosystemVault(), 25_000_000, args[1]],
+    "Productores y cooperativas": [await launcher.producersVault(), 15_000_000, args[2]],
+    Tesorería: [await launcher.treasuryVault(), 15_000_000, treasury],
+    Equipo: [await launcher.teamVault(), 15_000_000, args[3]],
+    "Asesores y socios": [await launcher.advisorsVault(), 5_000_000, args[4]],
+  };
+
+  // Comprobaciones
+  if ((await token.totalSupply()) !== G(100_000_000)) fail("El suministro no es 100M");
+  if ((await token.balanceOf(treasury)) !== G(25_000_000)) fail("La tesorería no tiene 25M");
+  for (const [name, [addr, amount]] of Object.entries(vaults)) {
+    if ((await token.balanceOf(addr)) !== G(amount)) fail(`La bóveda ${name} no tiene ${amount}`);
+  }
+  console.log("Comprobado: 100.000.000 GRANO repartidos correctamente");
+
   const deployed = {
     network: network.name,
     chainId: Number(network.config.chainId),
     deployedAt: new Date().toISOString(),
-    GranoToken: tokenAddr,
+    tx: receipt.hash,
+    GranoToken: await token.getAddress(),
+    GranoLauncher: launcherAddr,
     treasury,
-    vesting: {},
+    vesting: Object.fromEntries(Object.entries(vaults).map(([n, [a, amt, b]]) => [n, { address: a, amount: amt, beneficiary: b }])),
     heldByTreasury: { "Venta pública (pendiente de contrato)": 15_000_000, Liquidez: 10_000_000 },
   };
-
-  for (const [name, beneficiary, amount, lock, linear] of plan) {
-    const start = now + lock * MONTH;
-    const v = await ethers.deployContract("GranoVesting", [beneficiary, start, linear * MONTH]);
-    await v.waitForDeployment();
-    const addr = await v.getAddress();
-    await (await token.transfer(addr, G(amount))).wait();
-    deployed.vesting[name] = {
-      address: addr,
-      beneficiary,
-      amount,
-      start: new Date(start * 1000).toISOString(),
-      months: linear,
-    };
-    console.log(`Vesting ${name}: ${addr} (${amount.toLocaleString("es-ES")} GRANO)`);
-  }
-
-  // 3. Venta (15M) + liquidez (10M) a la tesorería
-  await (await token.transfer(treasury, G(25_000_000))).wait();
-  console.log("25.000.000 GRANO (venta + liquidez) a la tesorería");
-
-  // 4. Comprobaciones
-  const left = await token.balanceOf(deployer.address);
-  if (left !== 0n) fail(`El desplegador conserva ${ethers.formatUnits(left, 18)} GRANO`);
-  let sum = await token.balanceOf(treasury);
-  for (const v of Object.values(deployed.vesting)) sum += await token.balanceOf(v.address);
-  if (sum !== G(100_000_000)) fail(`Los saldos no suman 100M: ${ethers.formatUnits(sum, 18)}`);
-  console.log("Comprobado: 100.000.000 GRANO repartidos y 0 en el desplegador");
-
   const dir = path.join(__dirname, "..", "deployments");
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, `${network.name}.json`), JSON.stringify(deployed, null, 2));
