@@ -8,14 +8,48 @@
   "GranoLauncher": "0xd41c86CB38c9C90212BA39b97f8654d10151Fa07",
   "treasury": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5",
   "vesting": {
-    "Ecosistema y recompensas": { "address": "0x75e35992407AC9d9C491DB4B7003d9d7f5A87C8b", "amount": 25000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
-    "Productores y cooperativas": { "address": "0x1Ca92EE7C3b5aB369E833CE53F478624917592a6", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
-    "Tesorería": { "address": "0xE7E5307aC68a19f946431f3e8502e0A3FF175e22", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
-    "Equipo": { "address": "0xD2D551D981656ffa751023D0D28EEB8e29E2337c", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
-    "Asesores y socios": { "address": "0x7B30f624676f651e785C9f5579459cF8b4d3489c", "amount": 5000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" }
+    "Ecosistema y recompensas": {
+      "address": "0x75e35992407AC9d9C491DB4B7003d9d7f5A87C8b",
+      "amount": 25000000,
+      "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5"
+    },
+    "Productores y cooperativas": {
+      "address": "0x1Ca92EE7C3b5aB369E833CE53F478624917592a6",
+      "amount": 15000000,
+      "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5"
+    },
+    "Tesorería": {
+      "address": "0xE7E5307aC68a19f946431f3e8502e0A3FF175e22",
+      "amount": 15000000,
+      "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5"
+    },
+    "Equipo": {
+      "address": "0xD2D551D981656ffa751023D0D28EEB8e29E2337c",
+      "amount": 15000000,
+      "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5"
+    },
+    "Asesores y socios": {
+      "address": "0x7B30f624676f651e785C9f5579459cF8b4d3489c",
+      "amount": 5000000,
+      "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5"
+    }
   },
-  "heldByTreasury": { "Venta pública (pendiente de contrato)": 15000000, "Liquidez": 10000000 },
+  "heldByTreasury": {
+    "Venta pública (pendiente de contrato)": 15000000,
+    "Liquidez (en la Safe, sin usar)": 8000000
+  },
   "notOfficial": {
     "0x219aB0b54AbC79cB3f9c87F42cC78D69cD1144A0": "Desplegador de un intento fallido anterior: el token que creó NO es GRANO oficial"
+  },
+  "uniswapV3Pool": {
+    "address": "0xbd5114d7ea37bf78f70d5234c791783f1ebba243",
+    "pair": "USDC/GRANO",
+    "fee": "1%",
+    "usdc": "0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359",
+    "initialPrice": "0.05 USDC/GRANO",
+    "range": "0.0504 - 0.5028 USDC/GRANO",
+    "depositGrano": 2000000,
+    "positionNFT": "UNI-V3-POS #2989906 (en la Safe)",
+    "createdAt": "2026-10-20"
   }
 }
