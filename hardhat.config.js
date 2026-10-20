@@ -28,4 +28,5 @@ module.exports = {
     },
   },
   etherscan: { apiKey: POLYGONSCAN_API_KEY || "" },
+  sourcify: { enabled: true },
 };

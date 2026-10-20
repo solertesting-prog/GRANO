@@ -1,0 +1,22 @@
+name: Verificar contratos en Polygon
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Verificar
+        env:
+          POLYGON_RPC_URL: https://polygon-rpc.com
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
+        run: npx hardhat run scripts/verify-polygon.js --network polygon
