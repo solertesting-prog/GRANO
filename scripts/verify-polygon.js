@@ -15,13 +15,7 @@ async function verify(label, address, contract, args) {
     const level = /already (been )?verified|already partially|perfect/i.test(m) ? "notice" : "warning";
     console.log(`::${level} title=${label} (${where})::${m}`);
   };
-  try {
-    await run("verify:sourcify", { address, contract });
-    console.log(`::notice title=Verificado en Sourcify::${label} ${address}`);
-  } catch (e) {
-    report("Sourcify", e);
-  }
-  if (!process.env.POLYGONSCAN_API_KEY) return;
+  if (!process.env.POLYGONSCAN_API_KEY) return console.log(`::warning title=${label}::Falta la clave de Etherscan`);
   try {
     await run("verify:verify", { address, contract, constructorArguments: args });
     console.log(`::notice title=Verificado en Polygonscan::${label} ${address}`);
