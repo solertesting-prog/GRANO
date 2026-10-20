@@ -1,0 +1,21 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "deployedAt": "2026-10-20T07:57:28Z",
+  "tx": "0x285f9ea3eceef988aa2e59b06f29932496d09dcad1964c1e211459b2ea54eec6",
+  "block": 95851786,
+  "GranoToken": "0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438",
+  "GranoLauncher": "0xd41c86CB38c9C90212BA39b97f8654d10151Fa07",
+  "treasury": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5",
+  "vesting": {
+    "Ecosistema y recompensas": { "address": "0x75e35992407AC9d9C491DB4B7003d9d7f5A87C8b", "amount": 25000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
+    "Productores y cooperativas": { "address": "0x1Ca92EE7C3b5aB369E833CE53F478624917592a6", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
+    "Tesorería": { "address": "0xE7E5307aC68a19f946431f3e8502e0A3FF175e22", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
+    "Equipo": { "address": "0xD2D551D981656ffa751023D0D28EEB8e29E2337c", "amount": 15000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" },
+    "Asesores y socios": { "address": "0x7B30f624676f651e785C9f5579459cF8b4d3489c", "amount": 5000000, "beneficiary": "0x7c666e842D3c955eE1B8f54388e89377675D8fa5" }
+  },
+  "heldByTreasury": { "Venta pública (pendiente de contrato)": 15000000, "Liquidez": 10000000 },
+  "notOfficial": {
+    "0x219aB0b54AbC79cB3f9c87F42cC78D69cD1144A0": "Desplegador de un intento fallido anterior: el token que creó NO es GRANO oficial"
+  }
+}

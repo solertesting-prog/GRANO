@@ -23,7 +23,7 @@ permissions:
   statuses: write
 
 env:
-  POLYGON_RPC_URL: https://polygon-bor-rpc.publicnode.com
+  POLYGON_RPC_URL: https://polygon-rpc.com
 
 jobs:
   deploy:
