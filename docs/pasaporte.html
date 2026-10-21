@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Pasaporte de origen GRANO</title>
+<meta name="description" content="Demo del pasaporte de origen GRANO: trazabilidad de un lote de cacao desde la parcela hasta el tostador, con comprobación EUDR y registro en blockchain.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Stencil+Display:wght@700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: un "documento de aduana" de una columna (920px): cabecera-sello, ficha del lote con mapa, checklist EUDR, línea de custodia, verificación. */
+:root{
+  --bg:#F1F3EE; --paper:#FFFFFF; --ink:#17221D; --muted:#56645C; --line:#D5DBD3;
+  --forest:#1E4A38; --forest-ink:#F1F3EE; --ochre:#B07A12; --ochre-soft:#F4E7C8;
+  --ok:#2D7A4F; --ok-soft:#E3F1E8;
+  --display:"Big Shoulders Stencil Display","Oswald","Arial Narrow",sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){--bg:#101814;--paper:#17211C;--ink:#E5ECE6;--muted:#9AAAA1;--line:#2A3832;--forest:#7FBF9C;--forest-ink:#0F1713;--ochre:#E2AE48;--ochre-soft:#3A2F17;--ok:#6CC58F;--ok-soft:#1B3326;color-scheme:dark}
+}
+:root[data-theme="dark"]{--bg:#101814;--paper:#17211C;--ink:#E5ECE6;--muted:#9AAAA1;--line:#2A3832;--forest:#7FBF9C;--forest-ink:#0F1713;--ochre:#E2AE48;--ochre-soft:#3A2F17;--ok:#6CC58F;--ok-soft:#1B3326;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+a{color:var(--forest)}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px}
+.wrap{max-width:920px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px;display:grid;gap:24px}
+.demo{font:500 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--ochre-soft);color:var(--ink);padding:8px 12px;border-radius:6px}
+.eyebrow{font:500 .72rem var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1,h2{font-family:var(--display);font-weight:800;text-transform:uppercase;line-height:.95;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.4rem,7vw,4rem)}
+h2{font-size:1.6rem}
+p{margin:0}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:24px;display:grid;gap:18px;min-width:0}
+.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap}
+.stamp{font-family:var(--display);font-weight:800;font-size:1.15rem;letter-spacing:.06em;color:var(--ok);border:3px solid var(--ok);border-radius:6px;padding:6px 14px;transform:rotate(-5deg);white-space:nowrap}
+.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+dl{display:grid;grid-template-columns:auto 1fr;gap:8px 18px;margin:0;font-size:.94rem}
+dt{color:var(--muted)} dd{margin:0;font-family:var(--mono);font-size:.86rem;overflow-wrap:anywhere}
+.map{border:1px dashed var(--line);border-radius:8px;background:var(--bg);max-width:100%}
+.map svg{display:block;width:100%;height:auto}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:10px}
+.checks li{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+.checks .tick{width:28px;height:28px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;font-weight:700}
+.checks b{display:block} .checks span{color:var(--muted);font-size:.92rem}
+.chain{list-style:none;margin:0;padding:0;display:grid;gap:0}
+.chain li{display:grid;grid-template-columns:110px 18px 1fr;gap:12px;padding-bottom:18px;position:relative}
+.chain li::before{content:"";position:absolute;left:calc(110px + 12px + 8px);top:18px;bottom:0;width:2px;background:var(--line)}
+.chain li:last-child::before{display:none}
+.chain .d{font:500 .8rem var(--mono);color:var(--muted);padding-top:2px}
+.chain .dot{width:18px;height:18px;border-radius:50%;background:var(--forest);margin-top:3px;position:relative;z-index:1}
+.chain b{display:block} .chain span{color:var(--muted);font-size:.92rem}
+@media (max-width:520px){.chain li{grid-template-columns:18px 1fr}.chain .d{grid-column:2;order:-1;padding:0}.chain li::before{left:8px}}
+.verify{display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:center}
+@media (max-width:600px){.verify{grid-template-columns:1fr}}
+#qr{background:#fff;padding:10px;border-radius:8px;width:max-content}
+.hash{font:500 .8rem var(--mono);overflow-wrap:anywhere;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px}
+.btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 .92rem var(--body);padding:10px 16px;border-radius:6px;border:1px solid var(--forest);background:var(--forest);color:var(--forest-ink);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.msg{font-size:.88rem;min-height:1.4em;color:var(--muted)}
+.msg.ok{color:var(--ok)}
+.price{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:8px;overflow:hidden}
+.price div{background:var(--paper);padding:16px;display:grid;gap:4px}
+.price b{font:500 1.2rem var(--mono)} .price span{font-size:.84rem;color:var(--muted)}
+@media (max-width:600px){.price{grid-template-columns:1fr}}
+footer{font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="demo">Demostración · lote, parcela y transacciones de ejemplo</p>
+
+  <section class="card" aria-labelledby="t">
+    <div class="head">
+      <div style="display:grid;gap:8px">
+        <p class="eyebrow">Pasaporte de origen · Grano</p>
+        <h1 id="t">Lote GR-26-0187</h1>
+        <p style="color:var(--muted)">Cacao fino de aroma · fermentado 6 días · secado al sol</p>
+      </div>
+      <span class="stamp">EUDR ✓ CONFORME</span>
+    </div>
+
+    <div class="grid">
+      <div style="display:grid;gap:10px;min-width:0">
+        <div class="map" role="img" aria-label="Polígono de la parcela de origen, 2,4 hectáreas">
+          <svg viewBox="0 0 400 260">
+            <defs><pattern id="rows" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(28)"><line x1="0" y1="0" x2="0" y2="9" stroke="var(--forest)" stroke-width="1.6" opacity=".45"/></pattern></defs>
+            <g stroke="var(--line)" stroke-width="1"><line x1="0" y1="65" x2="400" y2="65"/><line x1="0" y1="130" x2="400" y2="130"/><line x1="0" y1="195" x2="400" y2="195"/><line x1="100" y1="0" x2="100" y2="260"/><line x1="200" y1="0" x2="200" y2="260"/><line x1="300" y1="0" x2="300" y2="260"/></g>
+            <path d="M80 60 L230 38 L330 82 L312 205 L150 222 L60 168 Z" fill="url(#rows)" stroke="var(--forest)" stroke-width="2.5"/>
+            <g fill="var(--ochre)"><circle cx="80" cy="60" r="5"/><circle cx="230" cy="38" r="5"/><circle cx="330" cy="82" r="5"/><circle cx="312" cy="205" r="5"/><circle cx="150" cy="222" r="5"/><circle cx="60" cy="168" r="5"/></g>
+            <text x="12" y="250" font-family="IBM Plex Mono, monospace" font-size="11" fill="var(--muted)">Polígono WGS84 · 6 vértices · 2,4 ha</text>
+          </svg>
+        </div>
+      </div>
+      <dl>
+        <dt>Productor</dt><dd>Cooperativa de ejemplo</dd>
+        <dt>Parcela</dt><dd>P-0412 · 2,4 ha</dd>
+        <dt>Coordenadas</dt><dd>1.0512° S, 79.4705° O (centroide)</dd>
+        <dt>Cosecha</dt><dd>Temporada principal 2026</dd>
+        <dt>Peso</dt><dd>1.380 kg · 23 sacos</dd>
+        <dt>Certificados</dt><dd>Orgánico (en trámite)</dd>
+        <dt>Comprador</dt><dd>Tostador de ejemplo, Barcelona</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="eudr">
+    <h2 id="eudr">Comprobación EUDR</h2>
+    <p style="color:var(--muted)">Lo que el Reglamento (UE) 2023/1115 exige demostrar para comercializar este lote en la UE.</p>
+    <ul class="checks">
+      <li><span class="tick" aria-hidden="true">✓</span><p><b>Geolocalización de la parcela</b><span>Polígono completo registrado, no solo un punto.</span></p></li>
+      <li><span class="tick" aria-hidden="true">✓</span><p><b>Sin deforestación después del 31/12/2020</b><span>Cubierta forestal comparada con imágenes de satélite de esa fecha y de la cosecha.</span></p></li>
+      <li><span class="tick" aria-hidden="true">✓</span><p><b>Producción legal en el país de origen</b><span>Documentación del productor adjunta al lote.</span></p></li>
+      <li><span class="tick" aria-hidden="true">✓</span><p><b>Declaración de diligencia debida</b><span>Datos listos para la declaración del importador ante la autoridad.</span></p></li>
+    </ul>
+  </section>
+
+  <section class="card" aria-labelledby="cust">
+    <h2 id="cust">Cadena de custodia</h2>
+    <ol class="chain">
+      <li><span class="d">12 mar 2026</span><span class="dot" aria-hidden="true"></span><p><b>Cosecha en la parcela P-0412</b><span>Registrada por la cooperativa con foto geolocalizada.</span></p></li>
+      <li><span class="d">18 mar 2026</span><span class="dot" aria-hidden="true"></span><p><b>Fermentación y secado</b><span>6 días de fermentación, 9 días de secado al sol. Humedad final 7 %.</span></p></li>
+      <li><span class="d">02 abr 2026</span><span class="dot" aria-hidden="true"></span><p><b>Lote sellado y pasaporte emitido</b><span>23 sacos precintados. Pasaporte registrado en Polygon.</span></p></li>
+      <li><span class="d">06 may 2026</span><span class="dot" aria-hidden="true"></span><p><b>Llegada a puerto UE</b><span>Declaración de diligencia debida presentada con los datos del pasaporte.</span></p></li>
+      <li><span class="d">20 may 2026</span><span class="dot" aria-hidden="true"></span><p><b>Recepción en el tostador</b><span>El QR del envase enlaza a este pasaporte.</span></p></li>
+    </ol>
+  </section>
+
+  <section class="card" aria-labelledby="ver">
+    <h2 id="ver">Verificación</h2>
+    <div class="verify">
+      <div id="qr" aria-label="Código QR de este pasaporte"></div>
+      <div style="display:grid;gap:12px;min-width:0">
+        <p>Cada pasaporte guarda en la blockchain la <b>huella criptográfica</b> de sus datos. Si alguien cambia un solo dato, la huella deja de coincidir.</p>
+        <div class="hash" id="hash">Calculando huella…</div>
+        <div class="btns">
+          <button class="btn" type="button" id="check">Comprobar integridad</button>
+          <button class="btn ghost" type="button" id="tamper">Simular un dato alterado</button>
+        </div>
+        <p class="msg" id="msg" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="cost">
+    <h2 id="cost">Cuánto cuesta</h2>
+    <p style="color:var(--muted)">El importador paga cada pasaporte en GRANO. La mitad de lo pagado se quema y desaparece de la circulación.</p>
+    <div class="price">
+      <div><b>400 GRANO</b><span>por lote (≈ 20 USDC al precio de apertura)</span></div>
+      <div><b>200 GRANO</b><span>se queman en cada emisión</span></div>
+      <div><b>1 QR</b><span>por envase, verificable por cualquiera</span></div>
+    </div>
+    <div class="btns">
+      <a class="btn" href="./">Conocer GRANO</a>
+      <a class="btn ghost" href="https://polygonscan.com/token/0xcc2036949c74fde9d3e6341d8cc3a69b7b27f438" target="_blank" rel="noopener">Contrato del token</a>
+    </div>
+  </section>
+
+  <footer>Demostración del producto. La cooperativa, el tostador, las fechas y la huella son de ejemplo; el registro en blockchain de pasaportes aún no está desplegado.</footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+const lot = {
+  id: "GR-26-0187", product: "Cacao fino de aroma", plot: "P-0412", areaHa: 2.4,
+  polygon: [[-1.0497,-79.4729],[-1.0489,-79.4700],[-1.0504,-79.4679],[-1.0526,-79.4683],[-1.0530,-79.4717],[-1.0517,-79.4732]],
+  harvest: "2026", weightKg: 1380, bags: 23, deforestationFreeSince: "2020-12-31"
+};
+const $ = (id) => document.getElementById(id);
+async function sha256(obj) {
+  const data = new TextEncoder().encode(JSON.stringify(obj));
+  const buf = await crypto.subtle.digest("SHA-256", data);
+  return "0x" + [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+}
+let registered = "";
+(async () => {
+  try {
+    registered = await sha256(lot);
+    $("hash").textContent = "Huella registrada: " + registered;
+  } catch (e) { $("hash").textContent = "Este navegador no permite calcular la huella."; }
+  try {
+    if (window.QRCode) new QRCode($("qr"), { text: location.href.split("#")[0] + "#" + lot.id, width: 132, height: 132, colorDark: "#17221D", colorLight: "#FFFFFF" });
+  } catch (e) {}
+})();
+$("check").addEventListener("click", async () => {
+  const now = await sha256(lot);
+  const ok = now === registered;
+  $("msg").className = "msg" + (ok ? " ok" : "");
+  $("msg").textContent = ok ? "Íntegro: los datos coinciden con la huella registrada." : "No coincide: algún dato del lote ha cambiado desde que se emitió el pasaporte.";
+});
+$("tamper").addEventListener("click", async () => {
+  const altered = { ...lot, weightKg: 1500 };
+  const h = await sha256(altered);
+  $("msg").className = "msg";
+  $("msg").textContent = `Con el peso cambiado a 1.500 kg la huella sería ${h.slice(0, 18)}…, distinta de la registrada. El cambio se detectaría al instante.`;
+});
+</script>
+</body>
+</html>
